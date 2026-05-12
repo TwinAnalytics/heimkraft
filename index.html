@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>HEIMKRAFT</title>
+
+<!-- PWA: iOS standalone behavior -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Heimkraft">
+<meta name="theme-color" content="#0B0B0A">
+<meta name="description" content="Bodyweight Muskelaufbau · 12-Wochen-Plan ohne Geräte">
+
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- iOS Install Hint -->
+<div class="install-banner" id="installBanner">
+  <div class="ib-text"><b>Als App installieren</b><br>Teilen-Symbol → „Zum Home-Bildschirm"</div>
+  <button id="installDismiss">OK</button>
+</div>
+
+<nav>
+  <div class="brand">HEIM<span>:</span>KRAFT</div>
+  <ul>
+    <li><a href="#prinzip">Prinzip</a></li>
+    <li><a href="#logbuch">Logbuch</a></li>
+    <li><a href="#regeln">Regeln</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="overline">Protokoll 001 — Bodyweight Hypertrophie</div>
+  <h1>
+    Muskeln bauen.<br>
+    Ohne Studio. Ohne Geräte.<br>
+    <em>Ohne Ausreden.</em>
+  </h1>
+  <p class="hero-sub">
+    Ein wissenschaftlich strukturiertes Trainingsprotokoll für maximalen Muskelaufbau – ausschließlich mit deinem eigenen Körpergewicht.
+    Drei Einheiten pro Woche. Vierzig Minuten. Zwölf Wochen bis zum sichtbaren Resultat.
+  </p>
+  <div class="hero-meta">
+    <div><span class="label">Frequenz</span><span class="val">3<span>/W</span></span></div>
+    <div><span class="label">Dauer</span><span class="val">40<span>min</span></span></div>
+    <div><span class="label">Equipment</span><span class="val">0</span></div>
+    <div><span class="label">Zyklus</span><span class="val">12<span>W</span></span></div>
+  </div>
+  <div class="hero-cta">
+    <button class="cta-primary" id="ctaStart">
+      <span id="ctaStartLabel">Training starten</span>
+      <span class="arrow">→</span>
+    </button>
+    <button class="cta-secondary" id="ctaReset" style="display:none">Plan zurücksetzen</button>
+  </div>
+  <div class="today-panel" id="todayPanel">
+    <div class="tp-head">
+      <div>
+        <div class="tp-label" id="tpLabel">Heutiges Training</div>
+        <div class="tp-name" id="tpName">—</div>
+      </div>
+      <div class="tp-progress" id="tpProgress">—</div>
+    </div>
+    <ul class="tp-list" id="tpList"></ul>
+    <div class="tp-actions">
+      <button class="tp-btn" id="btnViewPlan">12-Wochen-Plan ansehen →</button>
+    </div>
+  </div>
+</header>
+
+<!-- PRINCIPLES -->
+<section class="block" id="prinzip">
+  <div class="sec-head">
+    <h2>Die vier Gesetze</h2>
+    <div class="sec-num">§ 01 / 06 — Theorie</div>
+  </div>
+  <div class="principles-grid">
+    <div class="principle">
+      <span class="pnum">01</span>
+      <h3>Progressive Overload</h3>
+      <p>Ohne Hanteln steigerst du nicht das Gewicht – sondern die Schwierigkeit. Härtere Variante, mehr Wiederholungen, langsameres Tempo, weniger Pause. Jede Woche eine Variable nach oben schieben.</p>
+    </div>
+    <div class="principle">
+      <span class="pnum">02</span>
+      <h3>Mechanische Spannung</h3>
+      <p>Hypertrophie entsteht durch hohe Last bei kontrollierter Bewegung. Drei bis vier Sekunden exzentrisch absenken. Spannung im Muskel halten. Kein Schwung. Kein Reißen.</p>
+    </div>
+    <div class="principle">
+      <span class="pnum">03</span>
+      <h3>Nahe an Versagen</h3>
+      <p>Die letzten zwei bis drei Wiederholungen jedes Satzes müssen schwer sein. Wenn du saubere zwanzig Liegestütze machst, ist es Zeit für die nächste Stufe – nicht für vierzig.</p>
+    </div>
+    <div class="principle">
+      <span class="pnum">04</span>
+      <h3>Volumen &amp; Erholung</h3>
+      <p>Zehn bis zwanzig harte Sätze pro Muskelgruppe pro Woche. Mindestens 48 Stunden Pause zwischen Trainings derselben Muskelgruppe. Schlaf ist nicht verhandelbar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LOGBUCH -->
+<section class="block" id="logbuch">
+  <div class="sec-head">
+    <h2>Logbuch</h2>
+    <div class="sec-num">§ 05 / 06 — Konsistenz schlägt Intensität</div>
+  </div>
+  <div class="log-wrap">
+    <div class="log-week">
+      <div class="log-week-head">
+        <div>
+          <span class="log-label">Diese Woche</span>
+          <span class="log-week-info" id="weekInfo">—</span>
+        </div>
+        <div class="log-week-count">
+          <span id="weekCount">0</span><span class="of">/3</span>
+        </div>
+      </div>
+      <div class="log-days" id="logDays"></div>
+    </div>
+    <div class="log-stats">
+      <div class="stat">
+        <span class="stat-label">Aktueller Streak</span>
+        <span class="stat-val" id="streak">0</span><span class="stat-unit">Wochen</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Trainings gesamt</span>
+        <span class="stat-val" id="total">0</span><span class="stat-unit">absolviert</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Letzte 8 Wochen</span>
+        <div class="stat-history" id="history"></div>
+      </div>
+    </div>
+  </div>
+  <div class="log-actions">
+    <p class="log-hint">Klick auf den Tag, an dem du trainiert hast. Deine Einträge werden im Browser gespeichert.</p>
+    <button class="log-reset" id="resetLog">Alles zurücksetzen</button>
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="block rules-section" id="regeln">
+  <div class="sec-head">
+    <h2>Was du beachten musst</h2>
+    <div class="sec-num">§ 06 / 06 — Nicht verhandelbar</div>
+  </div>
+  <div class="rules-grid">
+    <div class="rule-block">
+      <h3>Ernährung</h3>
+      <p>Muskeln bauen sich aus Aminosäuren auf. Ohne ausreichend Eiweiß bleibt jeder Trainingsplan wirkungslos.</p>
+      <ul>
+        <li><b>1,6–2,0 g Protein</b> pro kg Körpergewicht täglich</li>
+        <li><b>Leichter Kalorienüberschuss</b> für maximale Hypertrophie (+200–300 kcal)</li>
+        <li>Verteile Protein auf 3–4 Mahlzeiten</li>
+        <li>Kreatin-Monohydrat (5g/Tag) ist das einzige Supplement mit klarer Studienlage</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <h3>Erholung</h3>
+      <p>Der Muskel wächst in der Pause – nicht im Training. Unterschätze diesen Teil nicht.</p>
+      <ul>
+        <li><b>7–9 Stunden Schlaf</b> pro Nacht, möglichst feste Zeiten</li>
+        <li>Mindestens <b>48 Stunden Pause</b> zwischen Trainings derselben Muskelgruppe</li>
+        <li>Eine komplette Trainingspause-Woche alle 8–12 Wochen (Deload)</li>
+        <li>Bei anhaltender Müdigkeit: weniger Volumen, nicht mehr</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <h3>Tracking</h3>
+      <p>Was nicht gemessen wird, wird nicht besser. Führe Buch über jeden Satz.</p>
+      <ul>
+        <li>Notiere Übung, Sätze, Wiederholungen, Schwierigkeitsstufe</li>
+        <li>Versuche jede Woche <b>eine Variable</b> zu steigern</li>
+        <li>Monatliches Foto bei gleichem Licht – Spiegel lügt</li>
+        <li>Körpergewicht wöchentlich, immer morgens nüchtern</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <h3>Realität</h3>
+      <p>Erwartungsmanagement. Damit du in zwölf Wochen nicht aufgibst.</p>
+      <ul>
+        <li>Sichtbare Veränderung nach <b>8–12 Wochen</b>, nicht früher</li>
+        <li>Anfänger: ca. 0,5–1 kg Muskel pro Monat möglich</li>
+        <li>Fortgeschrittene: deutlich langsamer, dafür konstanter Fortschritt</li>
+        <li>Bodyweight-Limits: Brust- und Beinmasse wachsen schwerer ohne Zusatzlast – ab einem Punkt lohnen sich Bänder oder ein Rucksack mit Büchern</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand-big">HEIM<span>:</span>KRAFT</div>
+  <div class="foot-meta">Protokoll v1.0 — Bodyweight Hypertrophie · 2026</div>
+</footer>
+
+<!-- ONBOARDING WIZARD MODAL -->
+<div class="modal" id="wizardModal">
+  <div class="modal-head">
+    <div class="modal-title">Setup <span>· Dein 12-Wochen-Plan</span></div>
+    <button class="modal-close" id="wizClose" aria-label="Schließen">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="wiz-progress">
+      <div class="wiz-bar active"></div>
+      <div class="wiz-bar"></div>
+      <div class="wiz-bar"></div>
+      <div class="wiz-bar"></div>
+    </div>
+
+    <!-- STEP 1: WEIGHT -->
+    <div class="wiz-step active" data-step="1">
+      <h2>Dein Körpergewicht</h2>
+      <p class="wiz-sub">Wir brauchen das für die Protein-Empfehlung und um deine Fortschritte ins Verhältnis zu setzen. Niemand außer dir sieht den Wert.</p>
+      <div class="wiz-field">
+        <label class="wiz-label">Gewicht<small>Aktuelles Körpergewicht</small></label>
+        <div class="wiz-input-row">
+          <input type="number" class="wiz-input" id="inWeight" min="30" max="250" placeholder="75">
+          <span class="wiz-unit">KG</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: FREQUENCY -->
+    <div class="wiz-step" data-step="2">
+      <h2>Trainings-Frequenz</h2>
+      <p class="wiz-sub">Wie oft willst du in den nächsten 12 Wochen trainieren? Sei ehrlich – Konstanz schlägt Ambition. Drei saubere Einheiten sind besser als vier verpasste.</p>
+      <div class="wiz-choice" id="freqChoice">
+        <button class="wiz-choice-btn" data-freq="3">
+          <span class="wc-num">3×</span>
+          <span class="wc-label">Push · Pull · Legs</span>
+          <span class="wc-desc">Optimal für Einsteiger oder bei hohem Berufs-Stress. Volle 48h Erholung zwischen Muskelgruppen.</span>
+        </button>
+        <button class="wiz-choice-btn" data-freq="4">
+          <span class="wc-num">4×</span>
+          <span class="wc-label">Upper · Lower</span>
+          <span class="wc-desc">Jede Muskelgruppe 2× pro Woche. Optimaler Hypertrophie-Stimulus für Fortgeschrittene.</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: STRENGTH TESTS -->
+    <div class="wiz-step" data-step="3">
+      <h2>Krafttests</h2>
+      <p class="wiz-sub">Wie viele saubere Wiederholungen schaffst du <em>maximal</em> in jeder Übung? Schätze ehrlich – darauf baut dein Plan auf. Notfalls schnell testen.</p>
+      <div class="wiz-tests">
+        <div class="wiz-test">
+          <div>
+            <div class="wt-label">Liegestütze (Standard)</div>
+            <div class="wt-hint">Max. Wdh. am Stück, ohne Pause. 0 wenn du noch keine schaffst.</div>
+          </div>
+          <input type="number" id="inPush" min="0" max="200" placeholder="0">
+        </div>
+        <div class="wiz-test">
+          <div>
+            <div class="wt-label">Tischrudern (unter Tisch)</div>
+            <div class="wt-hint">Beine ausgestreckt, Brust zum Tisch. Max. Wdh.</div>
+          </div>
+          <input type="number" id="inPull" min="0" max="200" placeholder="0">
+        </div>
+        <div class="wiz-test">
+          <div>
+            <div class="wt-label">Kniebeugen (Bodyweight)</div>
+            <div class="wt-hint">Volle Tiefe, kontrolliert. Max. Wdh.</div>
+          </div>
+          <input type="number" id="inSquat" min="0" max="200" placeholder="0">
+        </div>
+        <div class="wiz-test">
+          <div>
+            <div class="wt-label">Plank Hold</div>
+            <div class="wt-hint">Maximale Zeit in Sekunden mit sauberer Form.</div>
+          </div>
+          <input type="number" id="inPlank" min="0" max="600" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: SUMMARY -->
+    <div class="wiz-step" data-step="4">
+      <h2>Dein Plan ist bereit</h2>
+      <p class="wiz-sub">Basierend auf deinen Angaben generieren wir dir einen progressiven 12-Wochen-Trainingsplan mit drei Phasen à 4 Wochen.</p>
+      <div class="wiz-summary" id="wizSummary"></div>
+      <p class="wiz-sub" style="margin-bottom:0">
+        <b style="color:var(--ink)">Phase 1 (W1–4):</b> Foundation auf deinem aktuellen Level &nbsp;·&nbsp;
+        <b style="color:var(--ink)">Phase 2 (W5–8):</b> Eine Stufe schwerer &nbsp;·&nbsp;
+        <b style="color:var(--ink)">Phase 3 (W9–12):</b> Nochmal eine Stufe schwerer. Jede vierte Woche ist Deload.
+      </p>
+    </div>
+
+    <div class="wiz-nav">
+      <button class="wiz-btn back" id="wizBack" disabled>Zurück</button>
+      <button class="wiz-btn next" id="wizNext">Weiter</button>
+    </div>
+  </div>
+</div>
+
+<!-- 12-WEEK PLAN OVERVIEW MODAL -->
+<div class="modal" id="planModal">
+  <div class="modal-head">
+    <div class="modal-title">12-Wochen-Plan <span>· Gesamtübersicht</span></div>
+    <button class="modal-close" id="planClose" aria-label="Schließen">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="plan-phases">
+      <div class="plan-phase" data-phase="1">
+        <div class="pp-num">Phase 01</div>
+        <div class="pp-name">Foundation</div>
+        <div class="pp-week">W1 – W4</div>
+      </div>
+      <div class="plan-phase" data-phase="2">
+        <div class="pp-num">Phase 02</div>
+        <div class="pp-name">Build</div>
+        <div class="pp-week">W5 – W8</div>
+      </div>
+      <div class="plan-phase" data-phase="3">
+        <div class="pp-num">Phase 03</div>
+        <div class="pp-name">Peak</div>
+        <div class="pp-week">W9 – W12</div>
+      </div>
+    </div>
+    <div class="plan-overview" id="planOverview"></div>
+  </div>
+</div>
+
+<!-- WORKOUT PLAYER MODAL -->
+<div class="modal" id="playerModal">
+  <div class="modal-head">
+    <div class="modal-title" id="playerTitle">Training</div>
+    <button class="modal-close" id="playerClose" aria-label="Schließen">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="player-meta">
+      <span><b id="pmWeek">W1</b> · <b id="pmDay">Tag 1</b> · <b id="pmType">Push</b></span>
+      <span id="pmCount">Übung 1 / 4</span>
+    </div>
+    <div class="player-progress-bar"><div class="fill" id="pmFill" style="width:0%"></div></div>
+
+    <!-- EXERCISE VIEW -->
+    <div class="player-exercise" id="exView">
+      <div class="player-pattern" id="exPattern">PUSH</div>
+      <div class="player-num" id="exNum">Übung 1</div>
+      <div class="player-name" id="exName">—</div>
+      <div class="player-target" id="exTarget">—<small id="exTargetLabel">Sätze · Wiederholungen</small></div>
+      <div class="player-sets" id="exSets"></div>
+      <p class="player-instruction" id="exHint">—</p>
+      <a class="player-video" id="exVideo" href="#" target="_blank" rel="noopener noreferrer">Anleitung auf YouTube ↗</a>
+      <div class="player-actual">
+        <span class="player-actual-label" id="repLabel">Geschafft</span>
+        <div class="rep-adjust">
+          <button id="repMinus" type="button" aria-label="Weniger">−</button>
+          <span class="rep-value" id="repValue">0</span>
+          <button id="repPlus" type="button" aria-label="Mehr">+</button>
+        </div>
+      </div>
+      <div class="player-history" id="exHistory"></div>
+      <div class="player-actions">
+        <button class="player-btn" id="btnSetDone">Satz abgeschlossen</button>
+      </div>
+    </div>
+
+    <!-- REST VIEW -->
+    <div class="player-rest hidden" id="restView">
+      <div class="rest-label">Pause</div>
+      <div class="rest-clock" id="restClock">01:30</div>
+      <p class="rest-next">Als nächstes: <b id="restNext">Satz 2</b> von <b id="restExName">—</b></p>
+      <div class="player-actions">
+        <button class="player-btn" id="btnSkipRest">Pause überspringen</button>
+        <button class="player-btn secondary" id="btnAddRest">+15 Sek.</button>
+      </div>
+    </div>
+
+    <!-- DONE VIEW -->
+    <div class="player-done hidden" id="doneView">
+      <div class="done-title">Erledigt</div>
+      <p class="done-sub">Training abgeschlossen und ins Logbuch eingetragen.</p>
+      <div class="done-stats">
+        <div class="done-stat">
+          <div class="ds-val" id="dsExercises">0</div>
+          <div class="ds-label">Übungen</div>
+        </div>
+        <div class="done-stat">
+          <div class="ds-val" id="dsSets">0</div>
+          <div class="ds-label">Sätze</div>
+        </div>
+        <div class="done-stat">
+          <div class="ds-val" id="dsWeek">0</div>
+          <div class="ds-label">Woche</div>
+        </div>
+      </div>
+      <div class="player-actions">
+        <button class="player-btn" id="btnFinish">Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
