@@ -1,53 +1,48 @@
 export const PROGRESSIONS = {
   push: [
-    { name: 'Wand-Liegestütze',           hint: 'Hände an die Wand auf Brusthöhe. Körper schräg, kontrolliert absenken.' },
-    { name: 'Schräg-Liegestütze (Tisch)', hint: 'Hände auf stabilem Tisch oder Bank. Brust zur Kante.' },
-    { name: 'Knie-Liegestütze',           hint: 'Auf den Knien, voller Bewegungsumfang. Brust fast zum Boden.' },
-    { name: 'Standard-Liegestütze',       hint: 'Gerader Körper, Brust zum Boden. 3 Sek. absenken.' },
-    { name: 'Diamond Push-ups',           hint: 'Hände zu einem Dreieck zusammen. Trizeps-Fokus.' },
-    { name: 'Erhöhte Liegestütze',        hint: 'Füße auf Stuhl/Sofa. Mehr Last auf Schultern.' },
-    { name: 'Archer Push-ups',            hint: 'Gewicht auf einen Arm verlagern, andere Hand stützt nur.' },
-    { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine breit zur Stabilität. Königsdisziplin.' }
+    { name: 'Knie-Liegestütze',           hint: 'Auf den Knien, voller Bewegungsumfang. Brust fast zum Boden. 3 Sek. absenken.' },
+    { name: 'Standard-Liegestütze',       hint: 'Gerader Körper, Brust zum Boden. 3 Sek. absenken, 1 Sek. halten.' },
+    { name: 'Diamond Push-ups',           hint: 'Hände zu einem Dreieck. Trizeps-Fokus, Ellbogen nah am Körper.' },
+    { name: 'Erhöhte Liegestütze',        hint: 'Füße auf Stuhl. Mehr Last auf Schultern und obere Brust.' },
+    { name: 'Archer Push-ups',            hint: 'Arme weit auseinander, Gewicht auf einen Arm verlagern. Abwechselnd.' },
+    { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine schulterbreit. Körper gerade halten, Hüfte nicht drehen.' }
   ],
   pike: [
-    { name: 'Wand-Pike-Push-ups',         hint: 'Pike-Position mit Wand-Unterstützung. Kopf Richtung Wand.' },
-    { name: 'Pike Push-ups (Boden)',      hint: 'Hüfte hoch wie umgekehrtes V. Kopf zum Boden absenken.' },
-    { name: 'Erhöhte Pike Push-ups',      hint: 'Füße auf Stuhl. Schulter wird stark belastet.' },
-    { name: 'Wand-Handstand-Hold',        hint: 'Kopfüber an der Wand, Spannung halten.' },
-    { name: 'Handstand Push-ups (Wand)',  hint: 'Vollständige Wiederholungen kopfüber.' }
+    { name: 'Pike Push-ups',                      hint: 'Hüfte hoch wie umgekehrtes V. Kopf kontrolliert zum Boden absenken.' },
+    { name: 'Erhöhte Pike Push-ups (Stuhl)',       hint: 'Füße auf Stuhl, steilerer Winkel. Starker Schulter-Fokus.' },
+    { name: 'Slow-Neg Erhöhte Pike Push-ups',      hint: 'Erhöht (Füße auf Stuhl). 5 Sek. langsam absenken, dann hochdrücken.' },
+    { name: 'Archer Pike Push-ups (Erhöht)',       hint: 'Erhöht, Gewicht auf eine Schulter verlagern. Anderer Arm bleibt gestreckt.' }
   ],
   pull: [
-    { name: 'Superman Hold',                hint: 'Bauchlage, Arme und Beine heben, oben halten.' },
-    { name: 'Tischrudern (steil)',          hint: 'Unter Tisch, Beine angewinkelt. Brust zum Tisch ziehen.' },
-    { name: 'Tischrudern (flach)',          hint: 'Beine ausgestreckt – schwerer Hebel.' },
-    { name: 'Handtuch-Türrahmen-Rudern',    hint: 'Handtuch um Türrahmen, rückwärts wegziehen.' },
-    { name: 'Einarmige Tischrudern',        hint: 'Ein Arm zieht, andere Hand stützt.' },
-    { name: 'Negativ-Klimmzüge',            hint: 'Hochspringen, 5 Sek. langsam absenken.' },
-    { name: 'Vollständige Klimmzüge',       hint: 'Volle Wiederholungen an Stange/Türzarge.' }
+    { name: 'Superman Hold',                hint: 'Bauchlage, Arme und Beine gleichzeitig heben. 2 Sek. oben halten.' },
+    { name: 'W-Raises in Bauchlage',        hint: 'Bauchlage, Arme in W-Form (Ellbogen 90°). Schulterblätter kräftig zusammenziehen.' },
+    { name: 'Reverse Snow Angels',          hint: 'Bauchlage, Arme gestreckt am Körper. Über den Kopf führen und zurück.' },
+    { name: 'Stuhl-Rudern',                hint: 'Rückenlage unter stabilem Stuhlsitz. Stuhl greifen, Brust hochziehen.' },
+    { name: 'Stuhl-Rudern (einarmig)',      hint: 'Stuhl-Rudern mit einem Arm. Andere Hand an der Seite. Beide Seiten.' }
   ],
   squat: [
-    { name: 'Stuhl-Kniebeugen',              hint: 'Auf Stuhl absetzen, kontrolliert wieder hochkommen.' },
-    { name: 'Standard-Kniebeugen',           hint: 'Hüfte unter Knielinie, Knie nach außen.' },
-    { name: 'Tempo-Kniebeugen',              hint: '5 Sek. absenken, 1 Sek. halten, 1 Sek. hoch.' },
-    { name: 'Bulgarische Splitkniebeugen',   hint: 'Hinterer Fuß erhöht auf Stuhl. Einbeinig.' },
-    { name: 'Unterstützte Pistols',          hint: 'Eine Hand am Türrahmen, einbeinig absenken.' },
-    { name: 'Voller Pistol Squat',           hint: 'Einbeinig freistehend, anderes Bein vorgestreckt.' }
+    { name: 'Stuhl-Kniebeugen',             hint: 'Kontrolliert auf Stuhl absetzen, sofort wieder hochkommen. Knie nach außen.' },
+    { name: 'Standard-Kniebeugen',          hint: 'Hüfte unter Knielinie. Knie nach außen, Fersen bleiben auf dem Boden.' },
+    { name: 'Tempo-Kniebeugen',             hint: '5 Sek. absenken, 2 Sek. halten, explosive 1 Sek. hochkommen.' },
+    { name: 'Bulgarische Splitkniebeugen',  hint: 'Hinterer Fuß auf Stuhl. Vorderes Knie zeigt nach außen. Einbeinig.' },
+    { name: 'Pistol Squat Negativ',         hint: 'Einbeinig langsam absenken (5 Sek.), mit beiden Beinen hochdrücken.' },
+    { name: 'Voller Pistol Squat',          hint: 'Einbeinig freistehend, anderes Bein waagerecht. Beide Seiten.' }
   ],
   hinge: [
-    { name: 'Glute Bridge (beidbeinig)',     hint: 'Rückenlage, Hüfte hoch, oben halten.' },
-    { name: 'Einbeinige Glute Bridge',       hint: 'Ein Bein gestreckt in die Luft.' },
-    { name: 'Hip Thrust auf Couch',          hint: 'Schultern auf Sofa, größerer Bewegungsumfang.' },
-    { name: 'Sliding Leg Curls',             hint: 'Handtücher unter den Füßen auf glattem Boden.' },
-    { name: 'Nordic Curl Eccentrics',        hint: 'Knie auf Polster, Füße fixiert. Langsam nach vorn senken.' },
-    { name: 'Voller Nordic Curl',            hint: 'Konzentrisch und exzentrisch ohne Hilfe.' }
+    { name: 'Glute Bridge (beidbeinig)',          hint: 'Rückenlage, Füße hüftbreit. Hüfte explosiv hochdrücken, 2 Sek. oben halten.' },
+    { name: 'Einbeinige Glute Bridge',            hint: 'Ein Bein gestreckt in die Luft. Hüfte gerade halten. Beide Seiten.' },
+    { name: 'Hip Thrust (Schultern auf Stuhl)',   hint: 'Schulterblätter auf Stuhlkante. Hüfte tief absenken, dann explosiv hochdrücken.' },
+    { name: 'Single-Leg Hip Thrust (Stuhl)',      hint: 'Hip Thrust auf Stuhl, ein Bein angehoben und gestreckt. Hüfte gerade halten.' },
+    { name: 'Donkey Kicks mit Pause',             hint: 'Auf allen Vieren, Bein nach hinten-oben strecken. 2 Sek. oben halten. Beide Seiten.' },
+    { name: 'Reverse Hyperextension (Stuhl)',     hint: 'Oberkörper auf Stuhlsitz, Hüfte an der Kante, Beine hängen. Gestreckt heben und halten.' }
   ],
   core: [
-    { name: 'Dead Bug',                       hint: 'Auf Rücken, gegensätzliche Arm/Bein-Bewegung. Kontrolliert.' },
-    { name: 'Plank Hold',                     hint: 'Spannung, gerade Linie. Gesäß angespannt.', static: true },
-    { name: 'Side Plank',                     hint: 'Seitlich, beide Seiten. Hüfte hoch halten.', static: true },
-    { name: 'Hollow Body Hold',               hint: 'Auf Rücken, Arme und Beine schweben über Boden.', static: true },
-    { name: 'Hanging Knee Raises',            hint: 'An Stange, Knie zur Brust ziehen.' },
-    { name: 'L-Sit Progression',              hint: 'Auf zwei Stühlen, Beine waagerecht halten.', static: true }
+    { name: 'Dead Bug',                           hint: 'Auf Rücken, gegenüberliegende Arm/Bein-Paare absenken. Lendenwirbel bleibt unten.' },
+    { name: 'Plank Hold',                         hint: 'Unterarme oder Hände, gerade Linie vom Kopf bis zu den Fersen.', static: true },
+    { name: 'Side Plank',                         hint: 'Seitlich auf Unterarm. Hüfte hoch, gerade Linie halten. Beide Seiten.', static: true },
+    { name: 'Hollow Body Hold',                   hint: 'Auf Rücken, Arme über Kopf, Beine 20 cm vom Boden – alles schwebt.', static: true },
+    { name: 'Tuck L-Sit (zwei Stühle)',           hint: 'Hände auf zwei Stuhlkanten neben dir. Knie zur Brust heben und halten.', static: true },
+    { name: 'L-Sit (zwei Stühle)',                hint: 'Hände auf zwei Stuhlkanten. Beine gestreckt waagerecht halten.', static: true }
   ]
 };
 
