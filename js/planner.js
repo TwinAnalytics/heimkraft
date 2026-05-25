@@ -64,7 +64,7 @@ export function generateExercise(spec, profile, week) {
     target = `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, name: exercise.name, hint: exercise.hint, sets, target, type, isDeload };
+  return { pattern: spec.pattern, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, isDeload };
 }
 
 export function generateWorkout(dayIdx, week, profile) {

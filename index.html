@@ -351,11 +351,14 @@
       <div class="player-pattern" id="exPattern">PUSH</div>
       <div class="player-num" id="exNum">Übung 1</div>
       <div class="player-name" id="exName">—</div>
+      <div class="player-images" id="exImages"></div>
       <div class="player-target" id="exTarget">—<small id="exTargetLabel">Sätze · Wiederholungen</small></div>
       <div class="player-sets" id="exSets"></div>
       <p class="player-instruction" id="exHint">—</p>
       <a class="player-video" id="exVideo" href="#" target="_blank" rel="noopener noreferrer">Anleitung auf YouTube ↗</a>
-      <div class="player-actual">
+
+      <!-- REP-based control -->
+      <div class="player-actual" id="repControl">
         <span class="player-actual-label" id="repLabel">Geschafft</span>
         <div class="rep-adjust">
           <button id="repMinus" type="button" aria-label="Weniger">−</button>
@@ -363,9 +366,18 @@
           <button id="repPlus" type="button" aria-label="Mehr">+</button>
         </div>
       </div>
+
+      <!-- TIME-based control -->
+      <div class="player-timer hidden" id="timerControl">
+        <div class="timer-clock" id="timerClock">00:30</div>
+        <div class="timer-label">Sekunden halten</div>
+      </div>
+
       <div class="player-history" id="exHistory"></div>
       <div class="player-actions">
         <button class="player-btn" id="btnSetDone">Satz abgeschlossen</button>
+        <button class="player-btn hidden" id="btnTimerStart">Timer starten</button>
+        <button class="player-btn warn hidden" id="btnTimerStop">Stopp · Satz beenden</button>
       </div>
     </div>
 

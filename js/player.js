@@ -23,7 +23,11 @@ export function openPlayer() {
     restInt:       null,
     restPhase:     false,
     currentReps:   0,
-    history:       w.exercises.map(() => [])
+    history:       w.exercises.map(() => []),
+    exTimerInt:    null,
+    exTimerRemain: 0,
+    exTimerTarget: 0,
+    exTimerRunning: false
   };
   document.getElementById('playerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -34,7 +38,17 @@ export function closePlayer() {
   document.getElementById('playerModal').classList.remove('open');
   document.body.style.overflow = '';
   if (session && session.restInt) clearInterval(session.restInt);
+  if (session && session.exTimerInt) clearInterval(session.exTimerInt);
   session = null;
+}
+
+function stopExerciseTimer() {
+  if (!session) return;
+  if (session.exTimerInt) {
+    clearInterval(session.exTimerInt);
+    session.exTimerInt = null;
+  }
+  session.exTimerRunning = false;
 }
 
 function renderPlayer() {
@@ -78,11 +92,43 @@ function renderPlayer() {
     document.getElementById('exHint').textContent  = ex.hint;
     document.getElementById('exVideo').href        = ytLink(ex.name);
 
+    renderImages(ex);
+
+    const isTime = ex.type === 'time';
+    const repCtrl    = document.getElementById('repControl');
+    const timerCtrl  = document.getElementById('timerControl');
+    const btnDone    = document.getElementById('btnSetDone');
+    const btnStart   = document.getElementById('btnTimerStart');
+    const btnStop    = document.getElementById('btnTimerStop');
+
     const history     = session.history[session.exIdx];
-    const defaultReps = history.length > 0 ? history[history.length - 1] : parseTargetDefault(ex.target);
+    const targetVal   = parseTargetDefault(ex.target);
+    const defaultReps = isTime
+      ? targetVal
+      : (history.length > 0 ? history[history.length - 1] : targetVal);
     session.currentReps = defaultReps;
-    document.getElementById('repValue').textContent = defaultReps;
-    document.getElementById('repLabel').textContent = ex.type === 'time' ? 'Sekunden' : 'Wdh. geschafft';
+
+    stopExerciseTimer();
+
+    if (isTime) {
+      repCtrl.classList.add('hidden');
+      timerCtrl.classList.remove('hidden');
+      btnDone.classList.add('hidden');
+      btnStart.classList.remove('hidden');
+      btnStart.textContent = 'Timer starten';
+      btnStop.classList.add('hidden');
+      session.exTimerTarget  = targetVal;
+      session.exTimerRemain  = targetVal;
+      updateTimerClock();
+    } else {
+      repCtrl.classList.remove('hidden');
+      timerCtrl.classList.add('hidden');
+      btnDone.classList.remove('hidden');
+      btnStart.classList.add('hidden');
+      btnStop.classList.add('hidden');
+      document.getElementById('repValue').textContent = defaultReps;
+      document.getElementById('repLabel').textContent = 'Wdh. geschafft';
+    }
 
     const setsEl = document.getElementById('exSets');
     setsEl.innerHTML = '';
@@ -95,11 +141,92 @@ function renderPlayer() {
 
     const histEl = document.getElementById('exHistory');
     if (history.length > 0) {
-      const unit    = ex.type === 'time' ? 's' : '';
+      const unit    = isTime ? 's' : '';
       histEl.innerHTML = 'Bisher: ' + history.map(r => `<b>${r}${unit}</b>`).join(' · ');
     } else {
       histEl.innerHTML = '';
     }
+  }
+}
+
+function renderImages(ex) {
+  const wrap = document.getElementById('exImages');
+  wrap.innerHTML = '';
+  if (!ex.images || ex.images.length === 0) {
+    wrap.classList.add('empty');
+    return;
+  }
+  wrap.classList.remove('empty');
+  ex.images.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = `${ex.name} – Position ${i + 1}`;
+    img.loading = 'lazy';
+    img.onerror = () => { img.classList.add('broken'); };
+    wrap.appendChild(img);
+  });
+}
+
+function startExerciseTimer() {
+  if (!session) return;
+  const target = session.exTimerTarget || parseTargetDefault(session.workout.exercises[session.exIdx].target);
+  session.exTimerRemain  = target;
+  session.exTimerRunning = true;
+  updateTimerClock();
+
+  const btnStart = document.getElementById('btnTimerStart');
+  const btnStop  = document.getElementById('btnTimerStop');
+  btnStart.classList.add('hidden');
+  btnStop.classList.remove('hidden');
+
+  if (session.exTimerInt) clearInterval(session.exTimerInt);
+  session.exTimerInt = setInterval(() => {
+    session.exTimerRemain--;
+    updateTimerClock();
+    if (session.exTimerRemain <= 0) {
+      stopExerciseTimer();
+      beep();
+      session.currentReps = session.exTimerTarget;
+      completeSet();
+    }
+  }, 1000);
+}
+
+function stopExerciseTimerEarly() {
+  if (!session) return;
+  const elapsed = session.exTimerTarget - session.exTimerRemain;
+  stopExerciseTimer();
+  session.currentReps = Math.max(0, elapsed);
+  completeSet();
+}
+
+function updateTimerClock() {
+  if (!session) return;
+  const remain = Math.max(0, session.exTimerRemain);
+  const m  = Math.floor(remain / 60);
+  const s  = remain % 60;
+  const el = document.getElementById('timerClock');
+  if (!el) return;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('alert', session.exTimerRunning && remain <= 5);
+  el.classList.toggle('running', session.exTimerRunning);
+}
+
+function completeSet() {
+  const ex = session.workout.exercises[session.exIdx];
+  session.history[session.exIdx].push(session.currentReps);
+  session.setIdx++;
+  session.completedSets++;
+  if (session.setIdx >= ex.sets) {
+    if (session.exIdx + 1 >= session.workout.exercises.length) {
+      finishWorkout();
+      return;
+    }
+    session.exIdx++;
+    session.setIdx = 0;
+    startRest(90);
+  } else {
+    startRest(90);
   }
 }
 
@@ -146,6 +273,7 @@ function beep() {
 
 function finishWorkout() {
   if (session.restInt) clearInterval(session.restInt);
+  if (session.exTimerInt) clearInterval(session.exTimerInt);
   logWorkoutToday();
 
   const w = session.workout;
@@ -167,21 +295,15 @@ export function setupPlayerHandlers() {
   });
 
   document.getElementById('btnSetDone').addEventListener('click', () => {
-    const ex = session.workout.exercises[session.exIdx];
-    session.history[session.exIdx].push(session.currentReps);
-    session.setIdx++;
-    session.completedSets++;
-    if (session.setIdx >= ex.sets) {
-      if (session.exIdx + 1 >= session.workout.exercises.length) {
-        finishWorkout();
-        return;
-      }
-      session.exIdx++;
-      session.setIdx = 0;
-      startRest(90);
-    } else {
-      startRest(90);
-    }
+    completeSet();
+  });
+
+  document.getElementById('btnTimerStart').addEventListener('click', () => {
+    startExerciseTimer();
+  });
+
+  document.getElementById('btnTimerStop').addEventListener('click', () => {
+    stopExerciseTimerEarly();
   });
 
   document.getElementById('repPlus').addEventListener('click', () => {

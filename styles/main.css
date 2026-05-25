@@ -898,6 +898,65 @@
     transition: color 0.2s, border-color 0.2s;
   }
   .player-video:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Exercise images */
+  .player-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-width: 460px;
+    margin: 8px auto 22px;
+  }
+  .player-images.empty { display: none; }
+  .player-images img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    filter: grayscale(0.15) contrast(1.05);
+    transition: filter 0.3s;
+  }
+  .player-images img.broken { display: none; }
+
+  /* Exercise countdown timer (for static holds) */
+  .player-timer {
+    margin: 28px 0 12px;
+    text-align: center;
+  }
+  .timer-clock {
+    font-family: 'Antonio';
+    font-weight: 700;
+    font-size: clamp(5rem, 18vw, 10rem);
+    line-height: 0.9;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    transition: color 0.2s;
+  }
+  .timer-clock.running { animation: timer-tick 1s ease infinite; }
+  .timer-clock.alert { color: var(--warn); animation: pulse 0.5s ease infinite alternate; }
+  .timer-label {
+    font-family: 'JetBrains Mono';
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-top: 8px;
+  }
+  @keyframes timer-tick {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.02); }
+  }
+
+  /* Warning-colored action button (Stop timer) */
+  .player-btn.warn {
+    background: var(--warn);
+    color: var(--ink);
+  }
+  .player-btn.warn:hover { background: #E63A28; }
+  .player-btn.hidden { display: none; }
+
   .player-actual {
     margin-top: 32px;
     margin-bottom: 8px;
@@ -1436,7 +1495,8 @@
   }
   .player-meta b { color: var(--accent); font-weight: 500; }
   .player-exercise { text-align: center; padding: 20px 0 30px; }
-  .player-exercise.hidden, .player-rest.hidden, .player-done.hidden { display: none; }
+  .player-exercise.hidden, .player-rest.hidden, .player-done.hidden,
+  .player-actual.hidden, .player-timer.hidden { display: none; }
   .player-num {
     font-family: 'JetBrains Mono';
     font-size: 0.78rem;
