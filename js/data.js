@@ -7,7 +7,7 @@ export const PROGRESSIONS = {
     { name: 'Standard-Liegestütze',       hint: 'Gerader Körper, Brust zum Boden. 3 Sek. absenken, 1 Sek. halten.',                              images: imgs('Pushups') },
     { name: 'Diamond Push-ups',           hint: 'Hände zu einem Dreieck. Trizeps-Fokus, Ellbogen nah am Körper.',                                images: imgs('Push-Ups_-_Close_Triceps_Position') },
     { name: 'Erhöhte Liegestütze',        hint: 'Füße auf Stuhl. Mehr Last auf Schultern und obere Brust.',                                       images: imgs('Push-Ups_With_Feet_Elevated') },
-    { name: 'Archer Push-ups',            hint: 'Arme weit auseinander, Gewicht auf einen Arm verlagern. Abwechselnd.',                          images: imgs('Push-Up_Wide') },
+    { name: 'Decline Diamond Push-ups',   hint: 'Füße auf Stuhl, Hände unter der Brust zu einem Dreieck. Brust kontrolliert zum Boden, Ellbogen am Körper.', images: [`${IMG}Decline_Push-Up/0.jpg`, `${IMG}Push-Ups_-_Close_Triceps_Position/0.jpg`] },
     { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine schulterbreit. Körper gerade halten, Hüfte nicht drehen.',                      images: imgs('Single-Arm_Push-Up') }
   ],
   pike: [
