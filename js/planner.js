@@ -11,6 +11,14 @@ export function parseTargetDefault(target) {
   return parseInt(m[2] || m[1]);
 }
 
+export function parseTargetRange(target) {
+  const m = target.match(/(\d+)(?:[–\-](\d+))?/);
+  if (!m) return { lower: 0, upper: 0 };
+  const a = parseInt(m[1]);
+  const b = m[2] ? parseInt(m[2]) : a;
+  return { lower: Math.min(a, b), upper: Math.max(a, b) };
+}
+
 export function classifyLevel(pattern, reps) {
   if (pattern === 'push' || pattern === 'squat') {
     if (reps < 5)  return 0;
@@ -42,7 +50,8 @@ export function generateExercise(spec, profile, week) {
 
   const ladder = PROGRESSIONS[spec.pattern];
   let baseIdx = profile.levels[spec.pattern] || 1;
-  let idx = baseIdx + (phase - 1);
+  const adjust = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
+  let idx = baseIdx + (phase - 1) + adjust;
   if (spec.priority === 'secondary') idx = Math.max(0, idx - 1);
   idx = Math.max(0, Math.min(idx, ladder.length - 1));
   const exercise = ladder[idx];
@@ -64,7 +73,7 @@ export function generateExercise(spec, profile, week) {
     target = `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, isDeload };
+  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, isDeload };
 }
 
 export function generateWorkout(dayIdx, week, profile) {

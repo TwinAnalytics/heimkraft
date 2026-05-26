@@ -1,5 +1,6 @@
 const PROFILE_KEY = 'heimkraft-profile-v1';
 const LOG_KEY     = 'heimkraft-log-v1';
+const EXLOG_KEY   = 'heimkraft-exlog-v1';
 const INSTALL_KEY = 'heimkraft-install-dismissed';
 
 export function loadProfile() {
@@ -26,6 +27,25 @@ export function loadLog() {
 
 export function saveLog(l) {
   try { localStorage.setItem(LOG_KEY, JSON.stringify(l)); } catch(e) {}
+}
+
+export function loadExLog() {
+  try {
+    const raw = localStorage.getItem(EXLOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+export function saveExLog(l) {
+  try { localStorage.setItem(EXLOG_KEY, JSON.stringify(l)); } catch(e) {}
+}
+
+export function appendExLogEntry(entry) {
+  const log = loadExLog();
+  log.push(entry);
+  // Cap retention to last 50 entries (~ 4 months of training)
+  while (log.length > 50) log.shift();
+  saveExLog(log);
 }
 
 export function dismissInstall() {

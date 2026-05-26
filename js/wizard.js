@@ -90,6 +90,7 @@ function finishWizard() {
       core:  plankL
     },
     tests:        { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
+    levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, core: 0 },
     planBaseline: Object.keys(getTrainLog()).length,
     createdAt:    new Date().toISOString()
   };

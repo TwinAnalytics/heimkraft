@@ -1,8 +1,62 @@
-import { todaysWorkout, parseTargetDefault, ytLink } from './planner.js';
+import { todaysWorkout, parseTargetDefault, parseTargetRange, ytLink } from './planner.js';
 import { PATTERN_LABELS, WARMUP } from './data.js';
-import { loadProfile } from './storage.js';
+import { loadProfile, saveProfile, appendExLogEntry, loadExLog } from './storage.js';
 import { getTrainLog, logWorkoutToday } from './logbook.js';
 import { renderToday } from './today.js';
+
+const PATTERN_DE = {
+  push:  'Push',
+  pike:  'Pike',
+  pull:  'Pull',
+  squat: 'Squat',
+  hinge: 'Hinge',
+  core:  'Core'
+};
+
+function avg(arr) {
+  if (!arr.length) return 0;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+function evaluateAdaptations(profile) {
+  const exLog    = loadExLog();
+  const patterns = ['push', 'pike', 'pull', 'squat', 'hinge', 'core'];
+  const changes  = [];
+  const newAdj   = { ...(profile.levelAdjust || {}) };
+  for (const p of patterns) if (!(p in newAdj)) newAdj[p] = 0;
+
+  for (const pattern of patterns) {
+    // Letzte zwei main-Übungen dieses Patterns (rep-basiert)
+    const recent = [];
+    for (let i = exLog.length - 1; i >= 0 && recent.length < 2; i--) {
+      const ex = exLog[i].exercises.find(
+        e => e.pattern === pattern && e.priority === 'main' && e.type === 'reps'
+      );
+      if (ex) recent.push(ex);
+    }
+    if (recent.length < 2) continue;
+    // Beide müssen die GLEICHE Übung sein — verhindert Yo-yo direkt nach einer Anpassung
+    if (recent[0].name !== recent[1].name) continue;
+
+    const allMissed  = recent.every(ex => avg(ex.sets) < ex.lower);
+    const allCrushed = recent.every(ex => avg(ex.sets) >= ex.upper);
+
+    if (allMissed) {
+      const next = Math.max(-2, newAdj[pattern] - 1);
+      if (next !== newAdj[pattern]) {
+        newAdj[pattern] = next;
+        changes.push({ pattern, dir: 'down', exName: recent[0].name });
+      }
+    } else if (allCrushed) {
+      const next = Math.min(2, newAdj[pattern] + 1);
+      if (next !== newAdj[pattern]) {
+        newAdj[pattern] = next;
+        changes.push({ pattern, dir: 'up', exName: recent[0].name });
+      }
+    }
+  }
+  return { newAdj, changes };
+}
 
 let session = null;
 
@@ -349,11 +403,48 @@ function beep() {
 }
 
 function finishWorkout() {
-  if (session.restInt) clearInterval(session.restInt);
+  if (session.restInt)    clearInterval(session.restInt);
   if (session.exTimerInt) clearInterval(session.exTimerInt);
+  if (session.warmupInt)  clearInterval(session.warmupInt);
   logWorkoutToday();
 
   const w = session.workout;
+
+  // Per-exercise Performance speichern
+  const exEntries = w.exercises.map((ex, i) => {
+    const range = parseTargetRange(ex.target);
+    return {
+      name:     ex.name,
+      pattern:  ex.pattern,
+      priority: ex.priority || 'main',
+      type:     ex.type,
+      target:   ex.target,
+      lower:    range.lower,
+      upper:    range.upper,
+      sets:     session.history[i] || []
+    };
+  });
+  appendExLogEntry({
+    date:     new Date().toISOString().slice(0, 10),
+    week:     w.week,
+    dayIdx:   w.dayIdx,
+    workout:  w.name,
+    exercises: exEntries
+  });
+
+  // Autoregulation evaluieren und Profil aktualisieren
+  const profile = loadProfile();
+  let adaptChanges = [];
+  if (profile) {
+    const { newAdj, changes } = evaluateAdaptations(profile);
+    if (changes.length > 0) {
+      profile.levelAdjust = newAdj;
+      saveProfile(profile);
+      adaptChanges = changes;
+    }
+  }
+
+  // Done-View befüllen
   document.getElementById('exView').classList.add('hidden');
   document.getElementById('restView').classList.add('hidden');
   document.getElementById('doneView').classList.remove('hidden');
@@ -361,7 +452,31 @@ function finishWorkout() {
   document.getElementById('dsSets').textContent      = session.totalSets;
   document.getElementById('dsWeek').textContent      = w.week;
   document.getElementById('pmFill').style.width      = '100%';
+
+  renderAdaptations(adaptChanges);
   renderToday();
+}
+
+function renderAdaptations(changes) {
+  const block = document.getElementById('adaptBlock');
+  const list  = document.getElementById('adaptList');
+  if (!block || !list) return;
+  if (!changes || changes.length === 0) {
+    block.classList.add('hidden');
+    list.innerHTML = '';
+    return;
+  }
+  block.classList.remove('hidden');
+  list.innerHTML = '';
+  for (const c of changes) {
+    const li = document.createElement('li');
+    const arrow = c.dir === 'down' ? '↓' : '↑';
+    const reason = c.dir === 'down'
+      ? `<b>${c.exName}</b> war zu schwer — nächste Einheit eine Stufe leichter`
+      : `<b>${c.exName}</b> war zu leicht — nächste Einheit eine Stufe schwerer`;
+    li.innerHTML = `<span class="adapt-arrow ${c.dir}">${arrow}</span><span class="adapt-pat">${PATTERN_DE[c.pattern] || c.pattern}</span> ${reason}`;
+    list.appendChild(li);
+  }
 }
 
 export function setupPlayerHandlers() {
