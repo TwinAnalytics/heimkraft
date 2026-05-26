@@ -1,4 +1,4 @@
-import { todaysWorkout } from './planner.js';
+import { todaysWorkout, planProgress } from './planner.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog } from './logbook.js';
 
@@ -16,18 +16,19 @@ export function renderToday() {
   }
 
   reset.style.display = 'inline-block';
-  const trainLog      = getTrainLog();
+  const trainLog       = getTrainLog();
   const completedCount = Object.keys(trainLog).length;
-  const w             = todaysWorkout(profile, completedCount);
+  const planDone       = planProgress(profile, completedCount);
+  const w              = todaysWorkout(profile, completedCount);
   if (!w) return;
 
   const totalSessions = 12 * profile.frequency;
-  cta.textContent = completedCount >= totalSessions ? 'Plan abgeschlossen 🏆' : 'Heute trainieren';
+  cta.textContent = planDone >= totalSessions ? 'Plan abgeschlossen 🏆' : 'Heute trainieren';
 
   document.getElementById('tpName').textContent =
     `Woche ${w.week} · ${w.name}${w.isDeload ? ' (Deload)' : ''}`;
   document.getElementById('tpLabel').textContent    = w.focus;
-  document.getElementById('tpProgress').textContent = `${completedCount} / ${totalSessions} Einheiten`;
+  document.getElementById('tpProgress').textContent = `${planDone} / ${totalSessions} Einheiten`;
 
   const list = document.getElementById('tpList');
   list.innerHTML = '';

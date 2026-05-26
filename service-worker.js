@@ -1,4 +1,4 @@
-const CACHE_NAME = 'heimkraft-v1';
+const CACHE_NAME = 'heimkraft-v2';
 const ASSETS = [
   '/',
   '/index.html',

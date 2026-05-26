@@ -80,10 +80,16 @@ export function generateWorkout(dayIdx, week, profile) {
   };
 }
 
+export function planProgress(profile, completedCount) {
+  const baseline  = profile?.planBaseline || 0;
+  return Math.max(0, completedCount - baseline);
+}
+
 export function todaysWorkout(profile, completedCount) {
   if (!profile) return null;
-  const numDays = profile.frequency;
-  const dayIdx  = completedCount % numDays;
-  const week    = Math.min(12, Math.floor(completedCount / numDays) + 1);
+  const numDays   = profile.frequency;
+  const effective = planProgress(profile, completedCount);
+  const dayIdx    = effective % numDays;
+  const week      = Math.min(12, Math.floor(effective / numDays) + 1);
   return generateWorkout(dayIdx, week, profile);
 }

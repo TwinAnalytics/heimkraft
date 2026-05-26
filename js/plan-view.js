@@ -1,4 +1,4 @@
-import { generateWorkout } from './planner.js';
+import { generateWorkout, planProgress } from './planner.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog } from './logbook.js';
 
@@ -17,8 +17,9 @@ function renderPlan() {
   const profile        = loadProfile();
   const trainLog       = getTrainLog();
   const completedCount = Object.keys(trainLog).length;
+  const planDone       = planProgress(profile, completedCount);
   const numDays        = profile.frequency;
-  const currentWeek    = Math.min(12, Math.floor(completedCount / numDays) + 1);
+  const currentWeek    = Math.min(12, Math.floor(planDone / numDays) + 1);
   const PHASE_NAMES    = { 1: 'Foundation', 2: 'Build', 3: 'Peak' };
 
   document.querySelectorAll('.plan-phase').forEach(p => {
@@ -42,8 +43,8 @@ function renderPlan() {
     let statusDots = '';
     for (let d = 0; d < numDays; d++) {
       const sessionsBefore = (week - 1) * numDays + d;
-      const isDone         = sessionsBefore < completedCount;
-      const isCurrentDay   = sessionsBefore === completedCount;
+      const isDone         = sessionsBefore < planDone;
+      const isCurrentDay   = sessionsBefore === planDone;
       const cls            = isDone ? 'done' : (isCurrentDay ? 'current' : '');
       statusDots += `<span class="plan-status-dot ${cls}"></span>`;
     }

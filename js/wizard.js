@@ -3,6 +3,7 @@ import { PROGRESSIONS } from './data.js';
 import { saveProfile } from './storage.js';
 import { renderToday } from './today.js';
 import { openPlayer } from './player.js';
+import { getTrainLog } from './logbook.js';
 
 let wizStep = 1;
 const wizData = { weight: null, frequency: null, push: null, pull: null, squat: null, plank: null };
@@ -88,8 +89,9 @@ function finishWizard() {
       hinge: squatL,
       core:  plankL
     },
-    tests:     { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
-    createdAt: new Date().toISOString()
+    tests:        { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
+    planBaseline: Object.keys(getTrainLog()).length,
+    createdAt:    new Date().toISOString()
   };
   saveProfile(profile);
   closeWizard();
