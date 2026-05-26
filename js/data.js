@@ -14,7 +14,7 @@ export const PROGRESSIONS = {
     { name: 'Pike Push-ups',                      hint: 'Hüfte hoch wie umgekehrtes V. Kopf kontrolliert zum Boden absenken.',                  images: imgs('Handstand_Push-Ups') },
     { name: 'Erhöhte Pike Push-ups (Stuhl)',      hint: 'Füße auf Stuhl, steilerer Winkel. Starker Schulter-Fokus.',                              images: imgs('Handstand_Push-Ups') },
     { name: 'Slow-Neg Erhöhte Pike Push-ups',     hint: 'Erhöht (Füße auf Stuhl). 5 Sek. langsam absenken, dann hochdrücken.',                  images: imgs('Handstand_Push-Ups') },
-    { name: 'Wandhandstand Negativ',              hint: 'Mit den Füßen die Wand hochlaufen bis in den Handstand. Kopf langsam (5 Sek.) zum Boden senken, dann mit den Füßen wieder runterkrabbeln.', images: imgs('Handstand_Push-Ups') }
+    { name: 'Pseudo Planche Push-ups',            hint: 'Hände auf Hüfthöhe (nicht unter den Schultern), Finger zeigen nach außen. Oberkörper weit nach vorne lehnen, so dass die Schultern über den Händen liegen. Brust langsam absenken.', images: imgs('Pushups') }
   ],
   pull: [
     { name: 'Superman Hold',                hint: 'Bauchlage, Arme und Beine gleichzeitig heben. 2 Sek. oben halten.',                          images: imgs('Superman') },
