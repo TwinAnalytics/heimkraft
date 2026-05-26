@@ -1,5 +1,5 @@
 import { todaysWorkout, parseTargetDefault, ytLink } from './planner.js';
-import { PATTERN_LABELS } from './data.js';
+import { PATTERN_LABELS, WARMUP } from './data.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog, logWorkoutToday } from './logbook.js';
 import { renderToday } from './today.js';
@@ -27,18 +27,23 @@ export function openPlayer() {
     exTimerInt:    null,
     exTimerRemain: 0,
     exTimerTarget: 0,
-    exTimerRunning: false
+    exTimerRunning: false,
+    warmupActive:  true,
+    warmupIdx:     0,
+    warmupInt:     null,
+    warmupRemain:  0
   };
   document.getElementById('playerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  renderPlayer();
+  startWarmupExercise();
 }
 
 export function closePlayer() {
   document.getElementById('playerModal').classList.remove('open');
   document.body.style.overflow = '';
-  if (session && session.restInt) clearInterval(session.restInt);
+  if (session && session.restInt)   clearInterval(session.restInt);
   if (session && session.exTimerInt) clearInterval(session.exTimerInt);
+  if (session && session.warmupInt)  clearInterval(session.warmupInt);
   session = null;
 }
 
@@ -58,9 +63,21 @@ function renderPlayer() {
 
   document.getElementById('pmWeek').textContent  = `W${w.week}`;
   document.getElementById('pmDay').textContent   = w.isDeload ? 'Deload' : `Tag ${w.dayIdx + 1}`;
-  document.getElementById('pmType').textContent  = w.name;
-  document.getElementById('pmCount').textContent = `Übung ${session.exIdx + 1} / ${w.exercises.length}`;
+  document.getElementById('pmType').textContent  = session.warmupActive ? 'Warmup' : w.name;
+  document.getElementById('pmCount').textContent = session.warmupActive
+    ? `Aufwärmen ${session.warmupIdx + 1} / ${WARMUP.length}`
+    : `Übung ${session.exIdx + 1} / ${w.exercises.length}`;
   document.getElementById('pmFill').style.width  = `${(session.completedSets / session.totalSets) * 100}%`;
+
+  if (session.warmupActive) {
+    document.getElementById('warmupView').classList.remove('hidden');
+    document.getElementById('exView').classList.add('hidden');
+    document.getElementById('restView').classList.add('hidden');
+    document.getElementById('doneView').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('warmupView').classList.add('hidden');
 
   if (session.restPhase) {
     document.getElementById('exView').classList.add('hidden');
@@ -147,6 +164,66 @@ function renderPlayer() {
       histEl.innerHTML = '';
     }
   }
+}
+
+function startWarmupExercise() {
+  if (!session) return;
+  const w = WARMUP[session.warmupIdx];
+  if (!w) {
+    // warm-up done → start real workout
+    session.warmupActive = false;
+    renderPlayer();
+    return;
+  }
+  session.warmupActive = true;
+  session.warmupRemain = w.seconds;
+  renderWarmup();
+  if (session.warmupInt) clearInterval(session.warmupInt);
+  session.warmupInt = setInterval(() => {
+    session.warmupRemain--;
+    updateWarmupClock();
+    if (session.warmupRemain <= 0) {
+      clearInterval(session.warmupInt);
+      session.warmupInt = null;
+      beep();
+      session.warmupIdx++;
+      startWarmupExercise();
+    }
+  }, 1000);
+}
+
+function renderWarmup() {
+  if (!session) return;
+  const w  = WARMUP[session.warmupIdx];
+  const nx = WARMUP[session.warmupIdx + 1];
+  document.getElementById('wuProgress').textContent = `${session.warmupIdx + 1} / ${WARMUP.length}`;
+  document.getElementById('wuName').textContent     = w.name;
+  document.getElementById('wuHint').textContent     = w.hint;
+  document.getElementById('wuNext').innerHTML       = nx
+    ? `Danach: <b>${nx.name}</b>`
+    : `Danach: <b>Workout</b>`;
+  renderPlayer();
+  updateWarmupClock();
+}
+
+function updateWarmupClock() {
+  if (!session) return;
+  const remain = Math.max(0, session.warmupRemain);
+  const m  = Math.floor(remain / 60);
+  const s  = remain % 60;
+  const el = document.getElementById('wuClock');
+  if (!el) return;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('alert', remain <= 5);
+}
+
+function skipWarmup() {
+  if (!session) return;
+  if (session.warmupInt) clearInterval(session.warmupInt);
+  session.warmupInt    = null;
+  session.warmupActive = false;
+  session.warmupIdx    = WARMUP.length;
+  renderPlayer();
 }
 
 function renderImages(ex) {
@@ -293,6 +370,8 @@ export function setupPlayerHandlers() {
       closePlayer();
     }
   });
+
+  document.getElementById('btnSkipWarmup').addEventListener('click', skipWarmup);
 
   document.getElementById('btnSetDone').addEventListener('click', () => {
     completeSet();

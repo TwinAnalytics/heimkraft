@@ -121,5 +121,13 @@ export const DAY_TEMPLATES = {
   ]
 };
 
+export const WARMUP = [
+  { name: 'Hampelmänner',              seconds: 45, hint: 'Gleichmäßiges Tempo, Arme komplett nach oben, Beine schulterbreit auseinander. Locker atmen.' },
+  { name: 'Armkreisen',                seconds: 45, hint: 'Erst klein vorwärts, dann größer werden. Bei der Hälfte umdrehen und rückwärts kreisen. Schultern bewusst mitbewegen.' },
+  { name: 'Hüftkreisen & Beinpendel',  seconds: 45, hint: 'Erst Hüfte 15 Sek. in beide Richtungen kreisen. Danach Bein vorne/hinten pendeln lassen, locker — 15 Sek. pro Seite.' },
+  { name: 'Inchworms',                 seconds: 50, hint: 'Aus dem Stand mit gestreckten Beinen vorbeugen, mit den Händen nach vorne bis in die Plank-Position wandern. Kurz halten, mit den Füßen nachholen.' },
+  { name: 'Cat-Cow & T-Spine',         seconds: 45, hint: 'Vierfüßlerstand: 4× Rücken rund und durchhängen. Dann eine Hand zur Decke öffnen, Brustwirbelsäule rotieren — je 4× pro Seite.' }
+];
+
 export const MONTHS_DE = ['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'];
 export const DAYS_DE   = ['Mo','Di','Mi','Do','Fr','Sa','So'];

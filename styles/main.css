@@ -1496,7 +1496,58 @@
   .player-meta b { color: var(--accent); font-weight: 500; }
   .player-exercise { text-align: center; padding: 20px 0 30px; }
   .player-exercise.hidden, .player-rest.hidden, .player-done.hidden,
-  .player-actual.hidden, .player-timer.hidden { display: none; }
+  .player-actual.hidden, .player-timer.hidden, .player-warmup.hidden { display: none; }
+
+  /* Warm-up view */
+  .player-warmup { text-align: center; padding: 30px 0 20px; }
+  .warmup-overline {
+    font-family: 'JetBrains Mono';
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  .warmup-overline span { color: var(--ink); }
+  .warmup-name {
+    font-family: 'Antonio';
+    font-size: clamp(2.2rem, 6.5vw, 4.2rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 0.95;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+  .warmup-clock {
+    font-family: 'Antonio';
+    font-weight: 700;
+    font-size: clamp(5rem, 18vw, 10rem);
+    line-height: 0.9;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .warmup-clock.alert { color: var(--warn); animation: pulse 0.5s ease infinite alternate; }
+  .warmup-hint {
+    font-family: 'Fraunces';
+    font-style: italic;
+    color: var(--ink-dim);
+    font-size: 1.04rem;
+    max-width: 460px;
+    margin: 0 auto 12px;
+    line-height: 1.5;
+  }
+  .warmup-next {
+    font-family: 'JetBrains Mono';
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-top: 6px;
+    min-height: 18px;
+  }
+  .warmup-next b { color: var(--ink); font-weight: 500; }
   .player-num {
     font-family: 'JetBrains Mono';
     font-size: 0.78rem;
