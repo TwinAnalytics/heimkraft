@@ -198,7 +198,7 @@ function renderPlayer() {
       btnStart.classList.add('hidden');
       btnStop.classList.add('hidden');
       document.getElementById('repValue').textContent = defaultReps;
-      document.getElementById('repLabel').textContent = 'Wdh. geschafft';
+      document.getElementById('repLabel').textContent = ex.unilateral ? 'Wdh. pro Seite' : 'Wdh. geschafft';
     }
 
     const setsEl = document.getElementById('exSets');

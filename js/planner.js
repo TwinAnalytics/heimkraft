@@ -56,13 +56,14 @@ export function generateExercise(spec, profile, week) {
   idx = Math.max(0, Math.min(idx, ladder.length - 1));
   const exercise = ladder[idx];
 
+  const unilateral = !!exercise.unilateral;
   let sets, target, type;
   if (exercise.static) {
     type = 'time';
     sets = 3;
     const times = isDeload ? [25, 25, 25] : [25, 35, 45];
     const secs = times[Math.min(weekInPhase, 3) - 1] || 30;
-    target = `${secs} Sek.`;
+    target = unilateral ? `${secs} Sek. pro Seite` : `${secs} Sek.`;
   } else {
     type = 'reps';
     sets = isDeload ? 3 : 4;
@@ -70,10 +71,10 @@ export function generateExercise(spec, profile, week) {
     const secondaryRanges = ['6–8',  '8–10',  '10–12'];
     const ranges = spec.priority === 'main' ? mainRanges : secondaryRanges;
     const range = isDeload ? (spec.priority === 'main' ? '8' : '6') : ranges[weekInPhase - 1];
-    target = `${range} Wdh.`;
+    target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, isDeload };
+  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, isDeload };
 }
 
 export function generateWorkout(dayIdx, week, profile) {

@@ -8,7 +8,7 @@ export const PROGRESSIONS = {
     { name: 'Diamond Push-ups',           hint: 'Hände zu einem Dreieck. Trizeps-Fokus, Ellbogen nah am Körper.',                                images: imgs('Push-Ups_-_Close_Triceps_Position') },
     { name: 'Erhöhte Liegestütze',        hint: 'Füße auf Stuhl. Mehr Last auf Schultern und obere Brust.',                                       images: imgs('Push-Ups_With_Feet_Elevated') },
     { name: 'Decline Diamond Push-ups',   hint: 'Füße auf Stuhl, Hände unter der Brust zu einem Dreieck. Brust kontrolliert zum Boden, Ellbogen am Körper.', images: [`${IMG}Decline_Push-Up/0.jpg`, `${IMG}Push-Ups_-_Close_Triceps_Position/0.jpg`] },
-    { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine schulterbreit. Körper gerade halten, Hüfte nicht drehen.',                      images: imgs('Single-Arm_Push-Up') }
+    { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine schulterbreit. Körper gerade halten, Hüfte nicht drehen. Beide Seiten.',       images: imgs('Single-Arm_Push-Up'),                  unilateral: true }
   ],
   pike: [
     { name: 'Pike Push-ups',                      hint: 'Hüfte hoch wie umgekehrtes V. Kopf kontrolliert zum Boden absenken.',                  images: imgs('Handstand_Push-Ups') },
@@ -21,28 +21,28 @@ export const PROGRESSIONS = {
     { name: 'W-Raises in Bauchlage',        hint: 'Bauchlage, Arme in W-Form (Ellbogen 90°). Schulterblätter kräftig zusammenziehen.',          images: imgs('Superman') },
     { name: 'Reverse Snow Angels',          hint: 'Bauchlage, Arme gestreckt am Körper. Über den Kopf führen und zurück.',                     images: imgs('Superman') },
     { name: 'Stuhl-Rudern',                 hint: 'Rückenlage unter stabilem Stuhlsitz. Stuhl greifen, Brust hochziehen.',                      images: imgs('Inverted_Row') },
-    { name: 'Stuhl-Rudern (einarmig)',      hint: 'Stuhl-Rudern mit einem Arm. Andere Hand an der Seite. Beide Seiten.',                        images: imgs('Inverted_Row') }
+    { name: 'Stuhl-Rudern (einarmig)',      hint: 'Stuhl-Rudern mit einem Arm. Andere Hand an der Seite. Beide Seiten.',                        images: imgs('Inverted_Row'),                        unilateral: true }
   ],
   squat: [
     { name: 'Stuhl-Kniebeugen',             hint: 'Kontrolliert auf Stuhl absetzen, sofort wieder hochkommen. Knie nach außen.',               images: imgs('Sit_Squats') },
     { name: 'Standard-Kniebeugen',          hint: 'Hüfte unter Knielinie. Knie nach außen, Fersen bleiben auf dem Boden.',                     images: imgs('Bodyweight_Squat') },
     { name: 'Tempo-Kniebeugen',             hint: '5 Sek. absenken, 2 Sek. halten, explosive 1 Sek. hochkommen.',                              images: imgs('Bodyweight_Squat') },
-    { name: 'Bulgarische Splitkniebeugen',  hint: 'Hinterer Fuß auf Stuhl. Vorderes Knie zeigt nach außen. Einbeinig.',                        images: imgs('Split_Squats') },
-    { name: 'Pistol Squat Negativ',         hint: 'Einbeinig langsam absenken (5 Sek.), mit beiden Beinen hochdrücken.',                       images: imgs('Kettlebell_Pistol_Squat') },
-    { name: 'Voller Pistol Squat',          hint: 'Einbeinig freistehend, anderes Bein waagerecht. Beide Seiten.',                              images: imgs('Kettlebell_Pistol_Squat') }
+    { name: 'Bulgarische Splitkniebeugen',  hint: 'Hinterer Fuß auf Stuhl. Vorderes Knie zeigt nach außen. Einbeinig, beide Seiten.',           images: imgs('Split_Squats'),             unilateral: true },
+    { name: 'Pistol Squat Negativ',         hint: 'Einbeinig langsam absenken (5 Sek.), mit beiden Beinen hochdrücken. Beide Seiten.',          images: imgs('Kettlebell_Pistol_Squat'),  unilateral: true },
+    { name: 'Voller Pistol Squat',          hint: 'Einbeinig freistehend, anderes Bein waagerecht. Beide Seiten.',                              images: imgs('Kettlebell_Pistol_Squat'),  unilateral: true }
   ],
   hinge: [
     { name: 'Glute Bridge (beidbeinig)',          hint: 'Rückenlage, Füße hüftbreit. Hüfte explosiv hochdrücken, 2 Sek. oben halten.',         images: imgs('Butt_Lift_Bridge') },
-    { name: 'Einbeinige Glute Bridge',            hint: 'Ein Bein gestreckt in die Luft. Hüfte gerade halten. Beide Seiten.',                  images: imgs('Single_Leg_Glute_Bridge') },
+    { name: 'Einbeinige Glute Bridge',            hint: 'Ein Bein gestreckt in die Luft. Hüfte gerade halten. Beide Seiten.',                  images: imgs('Single_Leg_Glute_Bridge'),                       unilateral: true },
     { name: 'Hip Thrust (Schultern auf Stuhl)',   hint: 'Schulterblätter auf Stuhlkante. Hüfte tief absenken, dann explosiv hochdrücken.',     images: imgs('Butt_Lift_Bridge') },
-    { name: 'Single-Leg Hip Thrust (Stuhl)',      hint: 'Hip Thrust auf Stuhl, ein Bein angehoben und gestreckt. Hüfte gerade halten.',         images: imgs('Single_Leg_Glute_Bridge') },
-    { name: 'Donkey Kicks mit Pause',             hint: 'Auf allen Vieren, Bein nach hinten-oben strecken. 2 Sek. oben halten. Beide Seiten.', images: imgs('Glute_Kickback') },
+    { name: 'Single-Leg Hip Thrust (Stuhl)',      hint: 'Hip Thrust auf Stuhl, ein Bein angehoben und gestreckt. Hüfte gerade halten. Beide Seiten.', images: imgs('Single_Leg_Glute_Bridge'),                 unilateral: true },
+    { name: 'Donkey Kicks mit Pause',             hint: 'Auf allen Vieren, Bein nach hinten-oben strecken. 2 Sek. oben halten. Beide Seiten.', images: imgs('Glute_Kickback'),                                unilateral: true },
     { name: 'Reverse Hyperextension (Stuhl)',     hint: 'Oberkörper auf Stuhlsitz, Hüfte an der Kante, Beine hängen. Gestreckt heben und halten.', images: imgs('Hyperextensions_With_No_Hyperextension_Bench') }
   ],
   core: [
     { name: 'Dead Bug',                           hint: 'Auf Rücken, gegenüberliegende Arm/Bein-Paare absenken. Lendenwirbel bleibt unten.',  images: imgs('Dead_Bug') },
     { name: 'Plank Hold',                         hint: 'Unterarme oder Hände, gerade Linie vom Kopf bis zu den Fersen.',                       images: imgs('Plank'),       static: true },
-    { name: 'Side Plank',                         hint: 'Seitlich auf Unterarm. Hüfte hoch, gerade Linie halten. Beide Seiten.',                images: imgs('Side_Bridge'),  static: true },
+    { name: 'Side Plank',                         hint: 'Seitlich auf Unterarm. Hüfte hoch, gerade Linie halten. Beide Seiten.',                images: imgs('Side_Bridge'),  static: true, unilateral: true },
     { name: 'Hollow Body Hold',                   hint: 'Auf Rücken, Arme über Kopf, Beine 20 cm vom Boden – alles schwebt.',                  images: imgs('Plank'),       static: true },
     { name: 'Tuck L-Sit (zwei Stühle)',           hint: 'Hände auf zwei Stuhlkanten neben dir. Knie zur Brust heben und halten.',              images: imgs('Hanging_Pike'), static: true },
     { name: 'L-Sit (zwei Stühle)',                hint: 'Hände auf zwei Stuhlkanten. Beine gestreckt waagerecht halten.',                       images: imgs('Hanging_Pike'), static: true }
