@@ -37,6 +37,7 @@
     <li><a href="#prinzip">Prinzip</a></li>
     <li><a href="#logbuch">Logbuch</a></li>
     <li><a href="#regeln">Regeln</a></li>
+    <li><button class="nav-gear" id="settingsOpen" aria-label="Einstellungen">⚙</button></li>
   </ul>
 </nav>
 
@@ -53,7 +54,7 @@
     Drei Einheiten pro Woche. Vierzig Minuten. Zwölf Wochen bis zum sichtbaren Resultat.
   </p>
   <div class="hero-meta">
-    <div><span class="label">Frequenz</span><span class="val">3<span>/W</span></span></div>
+    <div><span class="label">Frequenz</span><span class="val" id="metaFreq">3<span>/W</span></span></div>
     <div><span class="label">Dauer</span><span class="val">40<span>min</span></span></div>
     <div><span class="label">Equipment</span><span class="val">0</span></div>
     <div><span class="label">Zyklus</span><span class="val">12<span>W</span></span></div>
@@ -74,6 +75,7 @@
       <div class="tp-progress" id="tpProgress">—</div>
     </div>
     <ul class="tp-list" id="tpList"></ul>
+    <div class="tp-adjust hidden" id="tpAdjust"></div>
     <div class="tp-actions">
       <button class="tp-btn" id="btnViewPlan">12-Wochen-Plan ansehen →</button>
     </div>
@@ -144,8 +146,25 @@
       </div>
     </div>
   </div>
+  <div class="log-extras">
+    <div class="log-extra-block">
+      <h3>Körpergewicht</h3>
+      <p class="log-extra-hint">Wöchentlich, morgens nüchtern — wie es die Regeln verlangen.</p>
+      <div class="weight-row">
+        <input type="number" inputmode="decimal" id="weightInput" min="30" max="250" step="0.1" placeholder="75,4">
+        <span class="weight-unit">KG</span>
+        <button class="weight-save" id="weightSave">Speichern</button>
+      </div>
+      <div class="weight-list" id="weightList"></div>
+    </div>
+    <div class="log-extra-block">
+      <h3>Übungs-Verlauf</h3>
+      <p class="log-extra-hint">Durchschnittliche Wiederholungen pro Einheit, letzte 5 Trainings.</p>
+      <div class="ex-trends" id="exTrends"></div>
+    </div>
+  </div>
   <div class="log-actions">
-    <p class="log-hint">Klick auf den Tag, an dem du trainiert hast. Deine Einträge werden im Browser gespeichert.</p>
+    <p class="log-hint">Der Kalender zeigt deine Trainingstage. Dein Plan-Fortschritt zählt unabhängig davon — nur im Player abgeschlossene Workouts.</p>
     <button class="log-reset" id="resetLog">Alles zurücksetzen</button>
   </div>
 </section>
@@ -232,17 +251,22 @@
       </div>
     </div>
 
-    <!-- STEP 2: FREQUENCY -->
+    <!-- STEP 2: FREQUENCY / SPLIT -->
     <div class="wiz-step" data-step="2">
-      <h2>Trainings-Frequenz</h2>
+      <h2>Trainings-Variante</h2>
       <p class="wiz-sub">Wie oft willst du in den nächsten 12 Wochen trainieren? Sei ehrlich – Konstanz schlägt Ambition. Drei saubere Einheiten sind besser als vier verpasste.</p>
       <div class="wiz-choice" id="freqChoice">
-        <button class="wiz-choice-btn" data-freq="3">
+        <button class="wiz-choice-btn" data-freq="3" data-split="fullbody">
+          <span class="wc-num">3×</span>
+          <span class="wc-label">Ganzkörper <em class="wc-reco">Empfehlung für Einsteiger</em></span>
+          <span class="wc-desc">Jede Muskelgruppe 2–3× pro Woche – der stärkste Wachstumsreiz für Anfänger und Wiedereinsteiger.</span>
+        </button>
+        <button class="wiz-choice-btn" data-freq="3" data-split="3">
           <span class="wc-num">3×</span>
           <span class="wc-label">Push · Pull · Legs</span>
-          <span class="wc-desc">Optimal für Einsteiger oder bei hohem Berufs-Stress. Volle 48h Erholung zwischen Muskelgruppen.</span>
+          <span class="wc-desc">Klassischer Split mit klarem Tages-Fokus. Jede Muskelgruppe 1× pro Woche mit hohem Volumen.</span>
         </button>
-        <button class="wiz-choice-btn" data-freq="4">
+        <button class="wiz-choice-btn" data-freq="4" data-split="4">
           <span class="wc-num">4×</span>
           <span class="wc-label">Upper · Lower</span>
           <span class="wc-desc">Jede Muskelgruppe 2× pro Woche. Optimaler Hypertrophie-Stimulus für Fortgeschrittene.</span>
@@ -354,7 +378,8 @@
       <p class="warmup-hint" id="wuHint">—</p>
       <p class="warmup-next" id="wuNext"></p>
       <div class="player-actions">
-        <button class="player-btn secondary" id="btnSkipWarmup">Aufwärmen überspringen →</button>
+        <button class="player-btn" id="btnWarmupNext">Weiter →</button>
+        <button class="player-btn secondary" id="btnSkipWarmup">Alles überspringen</button>
       </div>
     </div>
 
@@ -367,15 +392,21 @@
       <div class="player-target" id="exTarget">—<small id="exTargetLabel">Sätze · Wiederholungen</small></div>
       <div class="player-sets" id="exSets"></div>
       <p class="player-instruction" id="exHint">—</p>
+      <div class="swap-row hidden" id="swapRow">
+        <button class="swap-btn" id="btnEasier" type="button">↓ Stufe leichter</button>
+        <button class="swap-btn" id="btnHarder" type="button">↑ Stufe schwerer</button>
+      </div>
       <a class="player-video" id="exVideo" href="#" target="_blank" rel="noopener noreferrer">Anleitung auf YouTube ↗</a>
 
       <!-- REP-based control -->
       <div class="player-actual" id="repControl">
         <span class="player-actual-label" id="repLabel">Geschafft</span>
         <div class="rep-adjust">
+          <button id="repMinus5" type="button" class="rep-chip" aria-label="5 weniger">−5</button>
           <button id="repMinus" type="button" aria-label="Weniger">−</button>
           <span class="rep-value" id="repValue">0</span>
           <button id="repPlus" type="button" aria-label="Mehr">+</button>
+          <button id="repPlus5" type="button" class="rep-chip" aria-label="5 mehr">+5</button>
         </div>
       </div>
 
@@ -429,6 +460,72 @@
       <div class="player-actions">
         <button class="player-btn" id="btnFinish">Schließen</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settingsModal">
+  <div class="modal-head">
+    <div class="modal-title">Einstellungen</div>
+    <button class="modal-close" id="settingsClose" aria-label="Schließen">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="set-group">
+      <h3>Pausen zwischen Sätzen</h3>
+      <div class="set-row">
+        <label for="setRestMain">Hauptübungen<small>Schwere Sätze nahe Versagen brauchen Erholung</small></label>
+        <select id="setRestMain">
+          <option value="90">90 Sek.</option>
+          <option value="120">2 Min.</option>
+          <option value="150">2:30 Min.</option>
+          <option value="180">3 Min.</option>
+        </select>
+      </div>
+      <div class="set-row">
+        <label for="setRestSecondary">Neben- &amp; Core-Übungen</label>
+        <select id="setRestSecondary">
+          <option value="60">60 Sek.</option>
+          <option value="90">90 Sek.</option>
+          <option value="120">2 Min.</option>
+        </select>
+      </div>
+    </div>
+    <div class="set-group">
+      <h3>Audio</h3>
+      <div class="set-row">
+        <label for="setSound">Signalton bei Timer-Ende</label>
+        <input type="checkbox" id="setSound" checked>
+      </div>
+    </div>
+    <div class="set-group">
+      <h3>Daten</h3>
+      <p class="set-hint">Alles liegt nur in diesem Browser. Sichere regelmäßig — besonders vor einem Handywechsel.</p>
+      <div class="set-data-actions">
+        <button class="player-btn secondary" id="btnExport">Daten exportieren</button>
+        <label class="player-btn secondary import-label">
+          Daten importieren
+          <input type="file" id="btnImportFile" accept="application/json" hidden>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RETEST MODAL -->
+<div class="modal" id="retestModal">
+  <div class="modal-head">
+    <div class="modal-title">Abschluss-Test <span>· 12 Wochen geschafft</span></div>
+    <button class="modal-close" id="retestClose" aria-label="Schließen">×</button>
+  </div>
+  <div class="modal-body">
+    <h2 class="retest-title">Zeit für die Wahrheit</h2>
+    <p class="wiz-sub">Gleiche Tests wie beim Start. Ausgeruht antreten, sauber ausführen, ehrlich zählen.</p>
+    <div class="wiz-tests" id="retestForm"></div>
+    <div class="retest-result hidden" id="retestResult"></div>
+    <div class="player-actions">
+      <button class="player-btn" id="btnRetestEval">Auswerten</button>
+      <button class="player-btn hidden" id="btnRetestRestart">Neuen 12-Wochen-Plan starten</button>
     </div>
   </div>
 </div>

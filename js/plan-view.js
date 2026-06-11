@@ -1,4 +1,4 @@
-import { generateWorkout, planProgress } from './planner.js';
+import { generateWorkout, planProgress, isDeloadWeek } from './planner.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog } from './logbook.js';
 
@@ -34,7 +34,8 @@ function renderPlan() {
   for (let week = 1; week <= 12; week++) {
     const phase       = Math.ceil(week / 4);
     const weekInPhase = ((week - 1) % 4) + 1;
-    const isDeload    = weekInPhase === 4;
+    const isDeload    = isDeloadWeek(week);
+    const isFinale    = week === 12;
     const isCurrent   = week === currentWeek;
 
     const weekEl = document.createElement('div');
@@ -52,13 +53,15 @@ function renderPlan() {
     const phaseLabel = PHASE_NAMES[phase];
     const tagText    = isDeload
       ? 'Deload · Erholung'
-      : `Phase ${phase} · Woche ${weekInPhase} / 3`;
+      : isFinale
+        ? 'Finale · Volle Last + Abschluss-Test'
+        : `Phase ${phase} · Woche ${weekInPhase} / ${phase === 3 ? 4 : 3}`;
 
     weekEl.innerHTML = `
       <button class="plan-week-head" type="button">
         <span class="plan-week-num">W${String(week).padStart(2, '0')}</span>
         <div class="plan-week-info">
-          <span class="plan-week-title">${phaseLabel}${isDeload ? ' · Deload' : ''}</span>
+          <span class="plan-week-title">${phaseLabel}${isDeload ? ' · Deload' : ''}${isFinale ? ' · Finale' : ''}</span>
           <span class="plan-week-tag ${isDeload ? 'deload' : ''}">${tagText}</span>
         </div>
         <span class="plan-week-status">${statusDots}</span>

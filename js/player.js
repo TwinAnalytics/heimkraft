@@ -1,64 +1,141 @@
-import { todaysWorkout, parseTargetDefault, parseTargetRange, ytLink } from './planner.js';
-import { PATTERN_LABELS, WARMUP } from './data.js';
-import { loadProfile, saveProfile, appendExLogEntry, loadExLog } from './storage.js';
+import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink } from './planner.js';
+import { PATTERN_LABELS, PROGRESSIONS, WARMUP } from './data.js';
+import {
+  loadProfile, saveProfile, appendExLogEntry, loadExLog, loadSettings,
+  saveSessionSnapshot, loadSessionSnapshot, clearSessionSnapshot
+} from './storage.js';
 import { getTrainLog, logWorkoutToday } from './logbook.js';
 import { renderToday } from './today.js';
 
+let session  = null;
+let wakeLock = null;
+
 const PATTERN_DE = {
-  push:  'Push',
-  pike:  'Pike',
-  pull:  'Pull',
-  squat: 'Squat',
-  hinge: 'Hinge',
-  core:  'Core'
+  push: 'Push', pike: 'Pike', pull: 'Pull',
+  squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core'
 };
 
-function avg(arr) {
-  if (!arr.length) return 0;
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
+/* ── Audio: geteilter Context, auf erster User-Geste entsperrt (iOS) ── */
+let audioCtx = null;
+
+function primeAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e) {}
 }
 
-function evaluateAdaptations(profile) {
-  const exLog    = loadExLog();
-  const patterns = ['push', 'pike', 'pull', 'squat', 'hinge', 'core'];
-  const changes  = [];
-  const newAdj   = { ...(profile.levelAdjust || {}) };
-  for (const p of patterns) if (!(p in newAdj)) newAdj[p] = 0;
-
-  for (const pattern of patterns) {
-    // Letzte zwei main-Übungen dieses Patterns (rep-basiert)
-    const recent = [];
-    for (let i = exLog.length - 1; i >= 0 && recent.length < 2; i--) {
-      const ex = exLog[i].exercises.find(
-        e => e.pattern === pattern && e.priority === 'main' && e.type === 'reps'
-      );
-      if (ex) recent.push(ex);
-    }
-    if (recent.length < 2) continue;
-    // Beide müssen die GLEICHE Übung sein — verhindert Yo-yo direkt nach einer Anpassung
-    if (recent[0].name !== recent[1].name) continue;
-
-    const allMissed  = recent.every(ex => avg(ex.sets) < ex.lower);
-    const allCrushed = recent.every(ex => avg(ex.sets) >= ex.upper);
-
-    if (allMissed) {
-      const next = Math.max(-2, newAdj[pattern] - 1);
-      if (next !== newAdj[pattern]) {
-        newAdj[pattern] = next;
-        changes.push({ pattern, dir: 'down', exName: recent[0].name });
-      }
-    } else if (allCrushed) {
-      const next = Math.min(2, newAdj[pattern] + 1);
-      if (next !== newAdj[pattern]) {
-        newAdj[pattern] = next;
-        changes.push({ pattern, dir: 'up', exName: recent[0].name });
-      }
-    }
-  }
-  return { newAdj, changes };
+function beep() {
+  if (!loadSettings().sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.frequency.value = 880; o.type = 'sine';
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    o.start(); o.stop(audioCtx.currentTime + 0.6);
+  } catch(e) {}
 }
 
-let session = null;
+/* ── Wake Lock: Display an, solange trainiert wird ── */
+async function acquireWakeLock() {
+  try {
+    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+  } catch(e) { wakeLock = null; }
+}
+
+function releaseWakeLock() {
+  try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && session) acquireWakeLock();
+});
+
+/* ── Countdown: Zeitstempel-basiert, übersteht Bildschirmsperre ── */
+function startCountdown(seconds, onTick, onDone) {
+  const endTime = Date.now() + seconds * 1000;
+  let lastShown = null;
+  const tick = () => {
+    const remain = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    if (remain !== lastShown) { lastShown = remain; onTick(remain); }
+    if (remain <= 0) { clearInterval(int); onDone(); }
+  };
+  const int = setInterval(tick, 250);
+  tick();
+  return {
+    stop()  { clearInterval(int); },
+    addSeconds(n) {
+      const remain = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+      return startCountdownFrom(endTime + n * 1000, onTick, onDone, int);
+    },
+    remaining() { return Math.max(0, Math.ceil((endTime - Date.now()) / 1000)); },
+    endTime
+  };
+}
+
+// Hilfsfunktion für addSeconds: alten Interval ersetzen
+function startCountdownFrom(endTime, onTick, onDone, oldInt) {
+  clearInterval(oldInt);
+  let lastShown = null;
+  const tick = () => {
+    const remain = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    if (remain !== lastShown) { lastShown = remain; onTick(remain); }
+    if (remain <= 0) { clearInterval(int); onDone(); }
+  };
+  const int = setInterval(tick, 250);
+  tick();
+  return {
+    stop()  { clearInterval(int); },
+    addSeconds(n) { return startCountdownFrom(endTime + n * 1000, onTick, onDone, int); },
+    remaining() { return Math.max(0, Math.ceil((endTime - Date.now()) / 1000)); },
+    endTime
+  };
+}
+
+/* ── Session-Lifecycle ── */
+function buildSession(w, restored) {
+  return {
+    workout:       w,
+    exIdx:         restored ? restored.exIdx : 0,
+    setIdx:        restored ? restored.setIdx : 0,
+    totalSets:     w.exercises.reduce((sum, e) => sum + e.sets, 0),
+    completedSets: restored ? restored.completedSets : 0,
+    restTimer:     null,
+    restPhase:     false,
+    currentReps:   0,
+    history:       restored ? restored.history : w.exercises.map(() => []),
+    swapOffsets:   restored ? (restored.swapOffsets || w.exercises.map(() => 0)) : w.exercises.map(() => 0),
+    exTimer:       null,
+    exTimerTarget: 0,
+    exTimerRunning: false,
+    warmupActive:  restored ? false : true,
+    warmupIdx:     0,
+    warmupTimer:   null
+  };
+}
+
+function snapshotKey(w) {
+  return `${w.key}|W${w.week}`;
+}
+
+function persistSnapshot() {
+  if (!session || session.warmupActive) return;
+  const w = session.workout;
+  saveSessionSnapshot({
+    date:          new Date().toISOString().slice(0, 10),
+    key:           snapshotKey(w),
+    exIdx:         session.exIdx,
+    setIdx:        session.setIdx,
+    completedSets: session.completedSets,
+    history:       session.history,
+    swapOffsets:   session.swapOffsets
+  });
+}
 
 export function openPlayer() {
   const profile = loadProfile();
@@ -67,56 +144,86 @@ export function openPlayer() {
   const completedCount = Object.keys(trainLog).length;
   const w = todaysWorkout(profile, completedCount);
   if (!w) return;
-  session = {
-    workout:       w,
-    exIdx:         0,
-    setIdx:        0,
-    totalSets:     w.exercises.reduce((sum, e) => sum + e.sets, 0),
-    completedSets: 0,
-    restRemain:    0,
-    restInt:       null,
-    restPhase:     false,
-    currentReps:   0,
-    history:       w.exercises.map(() => []),
-    exTimerInt:    null,
-    exTimerRemain: 0,
-    exTimerTarget: 0,
-    exTimerRunning: false,
-    warmupActive:  true,
-    warmupIdx:     0,
-    warmupInt:     null,
-    warmupRemain:  0
-  };
+
+  // Unterbrochenes Workout von heute wiederaufnehmen?
+  let restored = null;
+  const snap = loadSessionSnapshot();
+  if (snap && snap.date === new Date().toISOString().slice(0, 10) && snap.key === snapshotKey(w)
+      && snap.completedSets > 0) {
+    if (confirm('Angefangenes Workout von heute fortsetzen?')) {
+      restored = snap;
+    } else {
+      clearSessionSnapshot();
+    }
+  }
+
+  session = buildSession(w, restored);
+  // Session-Swaps wiederherstellen
+  if (restored && session.swapOffsets.some(o => o !== 0)) {
+    applySwapOffsets(profile);
+  }
+
   document.getElementById('playerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  startWarmupExercise();
+  acquireWakeLock();
+
+  if (session.warmupActive) startWarmupExercise();
+  else renderPlayer();
+}
+
+function stopAllTimers() {
+  if (!session) return;
+  if (session.restTimer)   { session.restTimer.stop();   session.restTimer = null; }
+  if (session.exTimer)     { session.exTimer.stop();     session.exTimer = null; }
+  if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
+  session.exTimerRunning = false;
 }
 
 export function closePlayer() {
   document.getElementById('playerModal').classList.remove('open');
   document.body.style.overflow = '';
-  if (session && session.restInt)   clearInterval(session.restInt);
-  if (session && session.exTimerInt) clearInterval(session.exTimerInt);
-  if (session && session.warmupInt)  clearInterval(session.warmupInt);
+  stopAllTimers();
+  releaseWakeLock();
   session = null;
 }
 
-function stopExerciseTimer() {
-  if (!session) return;
-  if (session.exTimerInt) {
-    clearInterval(session.exTimerInt);
-    session.exTimerInt = null;
-  }
-  session.exTimerRunning = false;
+/* ── Übungs-Swap (eine Stufe leichter/schwerer, nur diese Session) ── */
+function ladderIndexOf(ex) {
+  const ladder = PROGRESSIONS[ex.pattern] || [];
+  return ladder.findIndex(l => l.name === ex.name);
 }
 
+function applySwapOffsets(profile) {
+  const w = session.workout;
+  w.exercises = w.exercises.map((ex, i) => {
+    const off = session.swapOffsets[i];
+    const clone = {
+      ...profile,
+      levelAdjust: { ...(profile.levelAdjust || {}), [ex.pattern]: (((profile.levelAdjust || {})[ex.pattern]) || 0) + off }
+    };
+    return generateExercise({ pattern: ex.pattern, priority: ex.priority }, clone, w.week);
+  });
+  session.totalSets = w.exercises.reduce((s, e) => s + e.sets, 0);
+}
+
+function swapExercise(delta) {
+  if (!session || session.restPhase || session.setIdx > 0) return;
+  const profile = loadProfile();
+  if (!profile) return;
+  session.swapOffsets[session.exIdx] += delta;
+  applySwapOffsets(profile);
+  stopAllTimers();
+  renderPlayer();
+}
+
+/* ── Rendering ── */
 function renderPlayer() {
   if (!session) return;
   const w  = session.workout;
   const ex = w.exercises[session.exIdx];
 
   document.getElementById('pmWeek').textContent  = `W${w.week}`;
-  document.getElementById('pmDay').textContent   = w.isDeload ? 'Deload' : `Tag ${w.dayIdx + 1}`;
+  document.getElementById('pmDay').textContent   = w.isDeload ? 'Deload' : (w.isFinale ? 'Finale' : `Tag ${w.dayIdx + 1}`);
   document.getElementById('pmType').textContent  = session.warmupActive ? 'Warmup' : w.name;
   document.getElementById('pmCount').textContent = session.warmupActive
     ? `Aufwärmen ${session.warmupIdx + 1} / ${WARMUP.length}`
@@ -164,6 +271,7 @@ function renderPlayer() {
     document.getElementById('exVideo').href        = ytLink(ex.name);
 
     renderImages(ex);
+    renderSwapButtons(ex);
 
     const isTime = ex.type === 'time';
     const repCtrl    = document.getElementById('repControl');
@@ -179,7 +287,8 @@ function renderPlayer() {
       : (history.length > 0 ? history[history.length - 1] : targetVal);
     session.currentReps = defaultReps;
 
-    stopExerciseTimer();
+    if (session.exTimer) { session.exTimer.stop(); session.exTimer = null; }
+    session.exTimerRunning = false;
 
     if (isTime) {
       repCtrl.classList.add('hidden');
@@ -188,9 +297,8 @@ function renderPlayer() {
       btnStart.classList.remove('hidden');
       btnStart.textContent = 'Timer starten';
       btnStop.classList.add('hidden');
-      session.exTimerTarget  = targetVal;
-      session.exTimerRemain  = targetVal;
-      updateTimerClock();
+      session.exTimerTarget = targetVal;
+      updateTimerClock(targetVal);
     } else {
       repCtrl.classList.remove('hidden');
       timerCtrl.classList.add('hidden');
@@ -210,74 +318,45 @@ function renderPlayer() {
       setsEl.appendChild(dot);
     }
 
+    // Heute schon absolvierte Sätze
     const histEl = document.getElementById('exHistory');
+    const unit   = isTime ? 's' : '';
+    let histHtml = '';
     if (history.length > 0) {
-      const unit    = isTime ? 's' : '';
-      histEl.innerHTML = 'Bisher: ' + history.map(r => `<b>${r}${unit}</b>`).join(' · ');
-    } else {
-      histEl.innerHTML = '';
+      histHtml = 'Heute: ' + history.map(r => `<b>${r}${unit}</b>`).join(' · ');
     }
+    // Letzte Session mit derselben Übung
+    const last = findLastPerformance(ex.name);
+    if (last) {
+      const d = new Date(last.date + 'T12:00:00');
+      histHtml += (histHtml ? '<br>' : '') +
+        `Letztes Mal (${d.getDate()}.${d.getMonth() + 1}.): ` +
+        last.sets.map(r => `<b>${r}${unit}</b>`).join(' · ');
+    }
+    histEl.innerHTML = histHtml;
   }
 }
 
-function startWarmupExercise() {
-  if (!session) return;
-  const w = WARMUP[session.warmupIdx];
-  if (!w) {
-    // warm-up done → start real workout
-    session.warmupActive = false;
-    renderPlayer();
-    return;
+function findLastPerformance(exName) {
+  const exLog = loadExLog();
+  for (let i = exLog.length - 1; i >= 0; i--) {
+    const found = exLog[i].exercises.find(e => e.name === exName && e.sets && e.sets.length);
+    if (found) return { date: exLog[i].date, sets: found.sets };
   }
-  session.warmupActive = true;
-  session.warmupRemain = w.seconds;
-  renderWarmup();
-  if (session.warmupInt) clearInterval(session.warmupInt);
-  session.warmupInt = setInterval(() => {
-    session.warmupRemain--;
-    updateWarmupClock();
-    if (session.warmupRemain <= 0) {
-      clearInterval(session.warmupInt);
-      session.warmupInt = null;
-      beep();
-      session.warmupIdx++;
-      startWarmupExercise();
-    }
-  }, 1000);
+  return null;
 }
 
-function renderWarmup() {
-  if (!session) return;
-  const w  = WARMUP[session.warmupIdx];
-  const nx = WARMUP[session.warmupIdx + 1];
-  document.getElementById('wuProgress').textContent = `${session.warmupIdx + 1} / ${WARMUP.length}`;
-  document.getElementById('wuName').textContent     = w.name;
-  document.getElementById('wuHint').textContent     = w.hint;
-  document.getElementById('wuNext').innerHTML       = nx
-    ? `Danach: <b>${nx.name}</b>`
-    : `Danach: <b>Workout</b>`;
-  renderPlayer();
-  updateWarmupClock();
-}
-
-function updateWarmupClock() {
-  if (!session) return;
-  const remain = Math.max(0, session.warmupRemain);
-  const m  = Math.floor(remain / 60);
-  const s  = remain % 60;
-  const el = document.getElementById('wuClock');
-  if (!el) return;
-  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.classList.toggle('alert', remain <= 5);
-}
-
-function skipWarmup() {
-  if (!session) return;
-  if (session.warmupInt) clearInterval(session.warmupInt);
-  session.warmupInt    = null;
-  session.warmupActive = false;
-  session.warmupIdx    = WARMUP.length;
-  renderPlayer();
+function renderSwapButtons(ex) {
+  const wrap = document.getElementById('swapRow');
+  if (!wrap) return;
+  const canSwap = session.setIdx === 0;
+  const idx     = ladderIndexOf(ex);
+  const ladder  = PROGRESSIONS[ex.pattern] || [];
+  const btnE = document.getElementById('btnEasier');
+  const btnH = document.getElementById('btnHarder');
+  btnE.classList.toggle('hidden', !canSwap || idx <= 0);
+  btnH.classList.toggle('hidden', !canSwap || idx < 0 || idx >= ladder.length - 1);
+  wrap.classList.toggle('hidden', (!canSwap) || (idx <= 0 && idx >= ladder.length - 1));
 }
 
 function renderImages(ex) {
@@ -298,56 +377,108 @@ function renderImages(ex) {
   });
 }
 
+/* ── Warmup ── */
+function startWarmupExercise() {
+  if (!session) return;
+  const w = WARMUP[session.warmupIdx];
+  if (!w) {
+    session.warmupActive = false;
+    if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
+    renderPlayer();
+    return;
+  }
+  session.warmupActive = true;
+  renderWarmupInfo();
+  renderPlayer();
+  if (session.warmupTimer) session.warmupTimer.stop();
+  session.warmupTimer = startCountdown(
+    w.seconds,
+    remain => updateWarmupClock(remain),
+    () => { beep(); session.warmupIdx++; startWarmupExercise(); }
+  );
+}
+
+function renderWarmupInfo() {
+  const w  = WARMUP[session.warmupIdx];
+  const nx = WARMUP[session.warmupIdx + 1];
+  document.getElementById('wuProgress').textContent = `${session.warmupIdx + 1} / ${WARMUP.length}`;
+  document.getElementById('wuName').textContent     = w.name;
+  document.getElementById('wuHint').textContent     = w.hint;
+  document.getElementById('wuNext').innerHTML       = nx ? `Danach: <b>${nx.name}</b>` : `Danach: <b>Workout</b>`;
+}
+
+function updateWarmupClock(remain) {
+  const el = document.getElementById('wuClock');
+  if (!el) return;
+  const m = Math.floor(remain / 60), s = remain % 60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('alert', remain <= 5);
+}
+
+function nextWarmup() {
+  if (!session || !session.warmupActive) return;
+  if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
+  session.warmupIdx++;
+  startWarmupExercise();
+}
+
+function skipWarmup() {
+  if (!session) return;
+  if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
+  session.warmupActive = false;
+  session.warmupIdx    = WARMUP.length;
+  renderPlayer();
+}
+
+/* ── Übungs-Timer (statische Übungen) ── */
 function startExerciseTimer() {
   if (!session) return;
   const target = session.exTimerTarget || parseTargetDefault(session.workout.exercises[session.exIdx].target);
-  session.exTimerRemain  = target;
   session.exTimerRunning = true;
-  updateTimerClock();
 
-  const btnStart = document.getElementById('btnTimerStart');
-  const btnStop  = document.getElementById('btnTimerStop');
-  btnStart.classList.add('hidden');
-  btnStop.classList.remove('hidden');
+  document.getElementById('btnTimerStart').classList.add('hidden');
+  document.getElementById('btnTimerStop').classList.remove('hidden');
 
-  if (session.exTimerInt) clearInterval(session.exTimerInt);
-  session.exTimerInt = setInterval(() => {
-    session.exTimerRemain--;
-    updateTimerClock();
-    if (session.exTimerRemain <= 0) {
-      stopExerciseTimer();
+  if (session.exTimer) session.exTimer.stop();
+  session.exTimer = startCountdown(
+    target,
+    remain => updateTimerClock(remain),
+    () => {
+      session.exTimer = null;
+      session.exTimerRunning = false;
       beep();
       session.currentReps = session.exTimerTarget;
       completeSet();
     }
-  }, 1000);
+  );
 }
 
 function stopExerciseTimerEarly() {
-  if (!session) return;
-  const elapsed = session.exTimerTarget - session.exTimerRemain;
-  stopExerciseTimer();
+  if (!session || !session.exTimer) return;
+  const elapsed = session.exTimerTarget - session.exTimer.remaining();
+  session.exTimer.stop();
+  session.exTimer = null;
+  session.exTimerRunning = false;
   session.currentReps = Math.max(0, elapsed);
   completeSet();
 }
 
-function updateTimerClock() {
-  if (!session) return;
-  const remain = Math.max(0, session.exTimerRemain);
-  const m  = Math.floor(remain / 60);
-  const s  = remain % 60;
+function updateTimerClock(remain) {
   const el = document.getElementById('timerClock');
   if (!el) return;
+  const m = Math.floor(remain / 60), s = remain % 60;
   el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.classList.toggle('alert', session.exTimerRunning && remain <= 5);
-  el.classList.toggle('running', session.exTimerRunning);
+  el.classList.toggle('alert', session && session.exTimerRunning && remain <= 5);
+  el.classList.toggle('running', session && session.exTimerRunning);
 }
 
+/* ── Satz-Abschluss & Pause ── */
 function completeSet() {
   const ex = session.workout.exercises[session.exIdx];
   session.history[session.exIdx].push(session.currentReps);
   session.setIdx++;
   session.completedSets++;
+  persistSnapshot();
   if (session.setIdx >= ex.sets) {
     if (session.exIdx + 1 >= session.workout.exercises.length) {
       finishWorkout();
@@ -355,62 +486,107 @@ function completeSet() {
     }
     session.exIdx++;
     session.setIdx = 0;
-    startRest(90);
+    startRest(restDurationFor(session.workout.exercises[session.exIdx]));
   } else {
-    startRest(90);
+    startRest(restDurationFor(ex));
   }
 }
 
+function restDurationFor(ex) {
+  const s = loadSettings();
+  return ex.priority === 'main' ? s.restMain : s.restSecondary;
+}
+
 function startRest(seconds) {
-  if (session.restInt) clearInterval(session.restInt);
-  session.restRemain = seconds;
-  session.restPhase  = true;
+  if (session.restTimer) session.restTimer.stop();
+  session.restPhase = true;
   renderPlayer();
-  updateRestClock();
-  session.restInt = setInterval(() => {
-    session.restRemain--;
-    updateRestClock();
-    if (session.restRemain <= 0) {
-      clearInterval(session.restInt);
-      session.restInt   = null;
+  session.restTimer = startCountdown(
+    seconds,
+    remain => updateRestClock(remain),
+    () => {
+      session.restTimer = null;
       beep();
       session.restPhase = false;
       renderPlayer();
     }
-  }, 1000);
+  );
 }
 
-function updateRestClock() {
-  const m  = Math.floor(session.restRemain / 60);
-  const s  = session.restRemain % 60;
+function updateRestClock(remain) {
   const el = document.getElementById('restClock');
+  if (!el) return;
+  const m = Math.floor(remain / 60), s = remain % 60;
   el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.classList.toggle('alert', session.restRemain <= 5);
+  el.classList.toggle('alert', remain <= 5);
 }
 
-function beep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o   = ctx.createOscillator();
-    const g   = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 880; o.type = 'sine';
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
-    o.start(); o.stop(ctx.currentTime + 0.6);
-  } catch(e) {}
+/* ── Autoregulation ── */
+function avg(arr) {
+  if (!arr.length) return 0;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
 }
 
+// Wertet NUR die Patterns aus, die im gerade beendeten Workout als Main trainiert
+// wurden — verhindert, dass dasselbe alte Session-Paar mehrfach Anpassungen auslöst.
+// Deload-Einheiten werden ignoriert; Zeit-Übungen passen nur nach unten an.
+function evaluateAdaptations(profile, finishedWorkout) {
+  if (finishedWorkout.isDeload) return { newAdj: profile.levelAdjust || {}, changes: [] };
+
+  const exLog    = loadExLog().filter(en => !en.isDeload);
+  const patterns = [...new Set(
+    finishedWorkout.exercises.filter(e => e.priority === 'main').map(e => e.pattern)
+  )];
+  const changes  = [];
+  const newAdj   = { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0, ...(profile.levelAdjust || {}) };
+
+  for (const pattern of patterns) {
+    const recent = [];
+    for (let i = exLog.length - 1; i >= 0 && recent.length < 2; i--) {
+      const ex = exLog[i].exercises.find(e => e.pattern === pattern && e.priority === 'main');
+      if (ex) recent.push(ex);
+    }
+    if (recent.length < 2) continue;
+    if (recent[0].name !== recent[1].name) continue;       // Anti-Yoyo nach Anpassung
+    if (recent[0].type !== recent[1].type) continue;
+
+    const isTime = recent[0].type === 'time';
+    let dir = null;
+    if (isTime) {
+      // Halte-Übungen: nur runter, wenn 2× deutlich (<80%) unter Ziel
+      if (recent.every(ex => avg(ex.sets) < ex.lower * 0.8)) dir = 'down';
+    } else {
+      if (recent.every(ex => avg(ex.sets) < ex.lower))       dir = 'down';
+      else if (recent.every(ex => avg(ex.sets) >= ex.upper)) dir = 'up';
+    }
+
+    if (dir === 'down') {
+      const next = Math.max(-2, newAdj[pattern] - 1);
+      if (next !== newAdj[pattern]) {
+        newAdj[pattern] = next;
+        changes.push({ pattern, dir, exName: recent[0].name });
+      }
+    } else if (dir === 'up') {
+      const next = Math.min(2, newAdj[pattern] + 1);
+      if (next !== newAdj[pattern]) {
+        newAdj[pattern] = next;
+        changes.push({ pattern, dir, exName: recent[0].name });
+      }
+    }
+  }
+  return { newAdj, changes };
+}
+
+/* ── Workout-Abschluss ── */
 function finishWorkout() {
-  if (session.restInt)    clearInterval(session.restInt);
-  if (session.exTimerInt) clearInterval(session.exTimerInt);
-  if (session.warmupInt)  clearInterval(session.warmupInt);
+  stopAllTimers();
+  // Migrations-Stand VOR dem Logbuch-Eintrag erfassen (sonst zählt heute doppelt)
+  const trainLogCountBefore = Object.keys(getTrainLog()).length;
   logWorkoutToday();
+  clearSessionSnapshot();
 
   const w = session.workout;
 
-  // Per-exercise Performance speichern
   const exEntries = w.exercises.map((ex, i) => {
     const range = parseTargetRange(ex.target);
     return {
@@ -425,26 +601,32 @@ function finishWorkout() {
     };
   });
   appendExLogEntry({
-    date:     new Date().toISOString().slice(0, 10),
-    week:     w.week,
-    dayIdx:   w.dayIdx,
-    workout:  w.name,
+    date:      new Date().toISOString().slice(0, 10),
+    week:      w.week,
+    dayIdx:    w.dayIdx,
+    workout:   w.name,
+    isDeload:  !!w.isDeload,
     exercises: exEntries
   });
 
-  // Autoregulation evaluieren und Profil aktualisieren
+  // Plan-Fortschritt hochzählen (vom Logbuch-Kalender entkoppelt)
   const profile = loadProfile();
   let adaptChanges = [];
   if (profile) {
-    const { newAdj, changes } = evaluateAdaptations(profile);
+    const current = (typeof profile.sessionsDone === 'number')
+      ? profile.sessionsDone
+      : Math.max(0, trainLogCountBefore - (profile.planBaseline || 0));
+
+    profile.sessionsDone = current + 1;
+
+    const { newAdj, changes } = evaluateAdaptations(profile, w);
     if (changes.length > 0) {
       profile.levelAdjust = newAdj;
-      saveProfile(profile);
       adaptChanges = changes;
     }
+    saveProfile(profile);
   }
 
-  // Done-View befüllen
   document.getElementById('exView').classList.add('hidden');
   document.getElementById('restView').classList.add('hidden');
   document.getElementById('doneView').classList.remove('hidden');
@@ -479,49 +661,44 @@ function renderAdaptations(changes) {
   }
 }
 
+/* ── Handler ── */
 export function setupPlayerHandlers() {
+  // iOS-Audio bei erster Berührung entsperren
+  document.addEventListener('pointerdown', primeAudio, { once: true });
+
   document.getElementById('playerClose').addEventListener('click', () => {
-    if (confirm('Training abbrechen? Bisheriger Fortschritt wird nicht ins Logbuch eingetragen.')) {
+    if (confirm('Training unterbrechen? Dein Fortschritt bleibt gespeichert — du kannst heute fortsetzen.')) {
       closePlayer();
     }
   });
 
   document.getElementById('btnSkipWarmup').addEventListener('click', skipWarmup);
+  document.getElementById('btnWarmupNext').addEventListener('click', nextWarmup);
 
-  document.getElementById('btnSetDone').addEventListener('click', () => {
-    completeSet();
-  });
+  document.getElementById('btnSetDone').addEventListener('click', () => completeSet());
+  document.getElementById('btnTimerStart').addEventListener('click', startExerciseTimer);
+  document.getElementById('btnTimerStop').addEventListener('click', stopExerciseTimerEarly);
 
-  document.getElementById('btnTimerStart').addEventListener('click', () => {
-    startExerciseTimer();
-  });
+  document.getElementById('btnEasier').addEventListener('click', () => swapExercise(-1));
+  document.getElementById('btnHarder').addEventListener('click', () => swapExercise(1));
 
-  document.getElementById('btnTimerStop').addEventListener('click', () => {
-    stopExerciseTimerEarly();
-  });
-
-  document.getElementById('repPlus').addEventListener('click', () => {
-    if (!session) return;
-    session.currentReps++;
+  const setReps = v => {
+    session.currentReps = Math.max(0, v);
     document.getElementById('repValue').textContent = session.currentReps;
-  });
-
-  document.getElementById('repMinus').addEventListener('click', () => {
-    if (!session) return;
-    session.currentReps = Math.max(0, session.currentReps - 1);
-    document.getElementById('repValue').textContent = session.currentReps;
-  });
+  };
+  document.getElementById('repPlus').addEventListener('click',  () => session && setReps(session.currentReps + 1));
+  document.getElementById('repMinus').addEventListener('click', () => session && setReps(session.currentReps - 1));
+  document.getElementById('repPlus5').addEventListener('click', () => session && setReps(session.currentReps + 5));
+  document.getElementById('repMinus5').addEventListener('click',() => session && setReps(session.currentReps - 5));
 
   document.getElementById('btnSkipRest').addEventListener('click', () => {
-    if (session.restInt) clearInterval(session.restInt);
-    session.restInt   = null;
+    if (session.restTimer) { session.restTimer.stop(); session.restTimer = null; }
     session.restPhase = false;
     renderPlayer();
   });
 
   document.getElementById('btnAddRest').addEventListener('click', () => {
-    session.restRemain += 15;
-    updateRestClock();
+    if (session.restTimer) session.restTimer = session.restTimer.addSeconds(15);
   });
 
   document.getElementById('btnFinish').addEventListener('click', closePlayer);

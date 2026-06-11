@@ -1,10 +1,12 @@
 import { setupInstallBanner, registerServiceWorker } from './pwa.js';
 import { renderLog, setupLogbookHandlers } from './logbook.js';
-import { renderToday } from './today.js';
+import { renderToday, isPlanComplete } from './today.js';
 import { openWizard, setupWizardHandlers } from './wizard.js';
 import { openPlayer, setupPlayerHandlers } from './player.js';
 import { openPlan, setupPlanHandlers } from './plan-view.js';
-import { loadProfile, clearProfile } from './storage.js';
+import { openRetest, setupRetestHandlers } from './retest.js';
+import { setupSettingsHandlers } from './settings.js';
+import { loadProfile, clearProfile, clearSessionSnapshot } from './storage.js';
 
 setupInstallBanner();
 registerServiceWorker();
@@ -13,15 +15,20 @@ setupLogbookHandlers();
 setupWizardHandlers();
 setupPlayerHandlers();
 setupPlanHandlers();
+setupRetestHandlers();
+setupSettingsHandlers();
 
 document.getElementById('ctaStart').addEventListener('click', () => {
-  if (!loadProfile()) openWizard();
+  const profile = loadProfile();
+  if (!profile) openWizard();
+  else if (isPlanComplete(profile)) openRetest();
   else openPlayer();
 });
 
 document.getElementById('ctaReset').addEventListener('click', () => {
   if (confirm('Plan und Profil zurücksetzen? Dein Logbuch bleibt erhalten.')) {
     clearProfile();
+    clearSessionSnapshot();
     renderToday();
   }
 });

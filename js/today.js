@@ -2,11 +2,26 @@ import { todaysWorkout, planProgress } from './planner.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog } from './logbook.js';
 
+const PATTERN_DE = {
+  push: 'Push', pike: 'Pike', pull: 'Pull',
+  squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core'
+};
+
+export function isPlanComplete(profile) {
+  if (!profile) return false;
+  const completedCount = Object.keys(getTrainLog()).length;
+  return planProgress(profile, completedCount) >= 12 * profile.frequency;
+}
+
 export function renderToday() {
   const profile = loadProfile();
   const panel   = document.getElementById('todayPanel');
   const cta     = document.getElementById('ctaStartLabel');
   const reset   = document.getElementById('ctaReset');
+
+  // Hero-Kennzahlen an gewählten Plan anpassen
+  const metaFreq = document.getElementById('metaFreq');
+  if (metaFreq) metaFreq.firstChild.textContent = profile ? String(profile.frequency) : '3';
 
   if (!profile) {
     panel.classList.remove('show');
@@ -23,19 +38,40 @@ export function renderToday() {
   if (!w) return;
 
   const totalSessions = 12 * profile.frequency;
-  cta.textContent = planDone >= totalSessions ? 'Plan abgeschlossen 🏆' : 'Heute trainieren';
+  const complete      = planDone >= totalSessions;
+  cta.textContent = complete ? 'Abschluss-Test starten' : 'Heute trainieren';
 
   document.getElementById('tpName').textContent =
-    `Woche ${w.week} · ${w.name}${w.isDeload ? ' (Deload)' : ''}`;
-  document.getElementById('tpLabel').textContent    = w.focus;
+    complete
+      ? 'Plan abgeschlossen 🏆'
+      : `Woche ${w.week} · ${w.name}${w.isDeload ? ' (Deload)' : ''}${w.isFinale ? ' (Finale)' : ''}`;
+  document.getElementById('tpLabel').textContent    = complete ? 'Zeit für den Abschluss-Test' : w.focus;
   document.getElementById('tpProgress').textContent = `${planDone} / ${totalSessions} Einheiten`;
 
   const list = document.getElementById('tpList');
   list.innerHTML = '';
-  w.exercises.forEach(ex => {
+  if (!complete) {
+    w.exercises.forEach(ex => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${ex.name}</span><span class="tp-sets">${ex.sets} × ${ex.target}</span>`;
+      list.appendChild(li);
+    });
+  } else {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${ex.name}</span><span class="tp-sets">${ex.sets} × ${ex.target}</span>`;
+    li.innerHTML = `<span>Teste deine Maximalwerte und vergleiche sie mit dem Start.</span>`;
     list.appendChild(li);
-  });
+  }
+
+  // Aktive Autoregulations-Anpassungen anzeigen
+  const adjEl = document.getElementById('tpAdjust');
+  if (adjEl) {
+    const adj = profile.levelAdjust || {};
+    const chips = Object.entries(adj)
+      .filter(([, v]) => v !== 0)
+      .map(([p, v]) => `<span class="adj-chip ${v < 0 ? 'down' : 'up'}">${PATTERN_DE[p] || p} ${v > 0 ? '+' : ''}${v}</span>`);
+    adjEl.innerHTML = chips.length ? `<span class="adj-label">Anpassungen:</span> ${chips.join(' ')}` : '';
+    adjEl.classList.toggle('hidden', chips.length === 0);
+  }
+
   panel.classList.add('show');
 }

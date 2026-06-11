@@ -1,12 +1,12 @@
 import { classifyLevel } from './planner.js';
 import { PROGRESSIONS } from './data.js';
-import { saveProfile } from './storage.js';
+import { saveProfile, clearExLog, clearSessionSnapshot } from './storage.js';
 import { renderToday } from './today.js';
 import { openPlayer } from './player.js';
 import { getTrainLog } from './logbook.js';
 
 let wizStep = 1;
-const wizData = { weight: null, frequency: null, push: null, pull: null, squat: null, plank: null };
+const wizData = { weight: null, frequency: null, split: null, push: null, pull: null, squat: null, plank: null };
 
 export function openWizard() {
   document.getElementById('wizardModal').classList.add('open');
@@ -37,7 +37,7 @@ function readWizStep() {
     if (!v || v < 30 || v > 250) { alert('Bitte ein gültiges Gewicht eingeben (30–250 kg).'); return false; }
     wizData.weight = v;
   } else if (wizStep === 2) {
-    if (!wizData.frequency) { alert('Bitte Frequenz wählen.'); return false; }
+    if (!wizData.split) { alert('Bitte Trainings-Variante wählen.'); return false; }
   } else if (wizStep === 3) {
     wizData.push  = parseInt(document.getElementById('inPush').value)  || 0;
     wizData.pull  = parseInt(document.getElementById('inPull').value)  || 0;
@@ -46,6 +46,12 @@ function readWizStep() {
   }
   return true;
 }
+
+const SPLIT_LABELS = {
+  'fullbody': '3× Ganzkörper',
+  '3':        '3× Push · Pull · Legs',
+  '4':        '4× Upper · Lower'
+};
 
 function renderWizSummary() {
   const pushL  = classifyLevel('push',  wizData.push);
@@ -63,7 +69,7 @@ function renderWizSummary() {
   const protein = Math.round(wizData.weight * 1.8);
   document.getElementById('wizSummary').innerHTML = `
     <div class="wiz-summary-row"><span>Körpergewicht</span><b>${wizData.weight} kg</b></div>
-    <div class="wiz-summary-row"><span>Frequenz</span><b>${wizData.frequency}× pro Woche</b></div>
+    <div class="wiz-summary-row"><span>Trainings-Variante</span><b>${SPLIT_LABELS[wizData.split] || wizData.frequency + '× pro Woche'}</b></div>
     <div class="wiz-summary-row"><span>Eingestuftes Level</span><b>${levelLabel}</b></div>
     <div class="wiz-summary-row"><span>Start Push</span><b>${startEx.push}</b></div>
     <div class="wiz-summary-row"><span>Start Pull</span><b>${startEx.pull}</b></div>
@@ -81,19 +87,25 @@ function finishWizard() {
   const profile = {
     weight:    wizData.weight,
     frequency: wizData.frequency,
+    split:     wizData.split,
     levels: {
       push:  pushL,
       pike:  pushL,
       pull:  pullL,
       squat: squatL,
       hinge: squatL,
+      calf:  0,
       core:  plankL
     },
     tests:        { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
-    levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, core: 0 },
+    levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0 },
+    sessionsDone: 0,
     planBaseline: Object.keys(getTrainLog()).length,
     createdAt:    new Date().toISOString()
   };
+  // Alte Leistungsdaten gehören zum alten Plan — Autoregulation startet sauber
+  clearExLog();
+  clearSessionSnapshot();
   saveProfile(profile);
   closeWizard();
   renderToday();
@@ -116,6 +128,7 @@ export function setupWizardHandlers() {
       document.querySelectorAll('#freqChoice .wiz-choice-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       wizData.frequency = parseInt(btn.dataset.freq);
+      wizData.split     = btn.dataset.split || String(btn.dataset.freq);
     });
   });
 }
