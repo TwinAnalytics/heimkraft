@@ -11,7 +11,7 @@ export const PROGRESSIONS = {
     { name: 'One-Arm Push-up',            hint: 'Einarmig, Beine schulterbreit. Körper gerade halten, Hüfte nicht drehen. Beide Seiten.',       images: imgs('Single-Arm_Push-Up'),                  unilateral: true }
   ],
   pike: [
-    { name: 'Pike Push-ups',                      hint: 'Hüfte hoch wie umgekehrtes V. Kopf kontrolliert zum Boden absenken. (Bild zeigt die schwerere Wand-Variante – gleiche Bewegung, Hüfte hoch.)', images: imgs('Handstand_Push-Ups') },
+    { name: 'Pike Push-ups',                      hint: 'Hüfte hoch wie umgekehrtes V, Hände und Füße auf dem Boden. Kopf kontrolliert Richtung Boden absenken. (Bild zeigt eine schwerere Variante – die Bewegung ist dieselbe.)', images: imgs('Handstand_Push-Ups') },
     { name: 'Erhöhte Pike Push-ups (Stuhl)',      hint: 'Füße auf Stuhl, steilerer Winkel. Starker Schulter-Fokus.',                              images: imgs('Handstand_Push-Ups') },
     { name: 'Slow-Neg Erhöhte Pike Push-ups',     hint: 'Erhöht (Füße auf Stuhl). 5 Sek. langsam absenken, dann hochdrücken.',                  images: imgs('Handstand_Push-Ups') },
     { name: 'Pseudo Planche Push-ups',            hint: 'Hände auf Hüfthöhe (nicht unter den Schultern), Finger zeigen nach außen. Oberkörper weit nach vorne lehnen, so dass die Schultern über den Händen liegen. Brust langsam absenken.', images: imgs('Pushups') }
@@ -20,7 +20,7 @@ export const PROGRESSIONS = {
     { name: 'Superman Hold',                hint: 'Bauchlage, Arme und Beine gleichzeitig heben. 2 Sek. oben halten.',                          images: imgs('Superman') },
     { name: 'W-Raises in Bauchlage',        hint: 'Bauchlage, Arme in W-Form (Ellbogen 90°). Schulterblätter kräftig zusammenziehen.',          images: imgs('Superman') },
     { name: 'Reverse Snow Angels',          hint: 'Bauchlage, Arme gestreckt am Körper. Über den Kopf führen und zurück.',                     images: imgs('Superman') },
-    { name: 'Tisch-Rudern',                 hint: 'Rückenlage unter einem stabilen Esstisch. Tischkante schulterbreit greifen, Körper gestreckt, Brust zur Kante ziehen. Je flacher der Körper, desto schwerer.', images: imgs('Inverted_Row') },
+    { name: 'Swimmers (Bauchlage)',         hint: 'Bauchlage, Brust und Arme bleiben durchgehend in der Luft. Arme gestreckt von vorne über die Seite bis zur Hüfte führen und zurück. 2 Sek. Pause vorne und hinten.', images: imgs('Superman') },
     { name: 'Stuhl-Rudern',                 hint: 'Rückenlage unter stabilem Stuhlsitz. Stuhl greifen, Brust hochziehen.',                      images: imgs('Inverted_Row') },
     { name: 'Stuhl-Rudern (einarmig)',      hint: 'Stuhl-Rudern mit einem Arm. Andere Hand an der Seite. Beide Seiten.',                        images: imgs('Inverted_Row'),                        unilateral: true }
   ],
@@ -37,12 +37,12 @@ export const PROGRESSIONS = {
     { name: 'Einbeinige Glute Bridge',            hint: 'Ein Bein gestreckt in die Luft. Hüfte gerade halten. Beide Seiten.',                  images: imgs('Single_Leg_Glute_Bridge'),                       unilateral: true },
     { name: 'Hip Thrust (Schultern auf Stuhl)',   hint: 'Schulterblätter auf Stuhlkante. Hüfte tief absenken, dann explosiv hochdrücken.',     images: imgs('Butt_Lift_Bridge') },
     { name: 'Single-Leg Hip Thrust (Stuhl)',      hint: 'Hip Thrust auf Stuhl, ein Bein angehoben und gestreckt. Hüfte gerade halten. Beide Seiten.', images: imgs('Single_Leg_Glute_Bridge'),                 unilateral: true },
-    { name: 'Sliding Leg Curls (Handtuch)',       hint: 'Rückenlage, Fersen auf Handtuch (glatter Boden) oder Socken. Hüfte heben, Fersen langsam wegschieben und wieder heranziehen. Hüfte bleibt oben – Hamstring-Fokus.', images: imgs('Butt_Lift_Bridge') },
-    { name: 'Nordic Negativ (Sofa)',              hint: 'Kniend, Füße unter Sofa/Bett geklemmt. Körper gestreckt so langsam wie möglich nach vorne absenken (5+ Sek.), mit den Händen abfangen, zurückdrücken.', images: imgs('Natural_Glute_Ham_Raise') }
+    { name: 'Sliding Leg Curls (beidbeinig)',     hint: 'Rückenlage neben der Matte, Fersen auf Socken oder Handtuch (glatter Boden). Hüfte heben, Fersen langsam wegschieben und wieder heranziehen. Hüfte bleibt oben – Hamstring-Fokus.', images: imgs('Butt_Lift_Bridge') },
+    { name: 'Sliding Leg Curls (einbeinig)',      hint: 'Wie beidbeinig, aber nur eine Ferse gleitet – das andere Bein bleibt angewinkelt in der Luft. Hüfte oben halten. Beide Seiten.', images: imgs('Single_Leg_Glute_Bridge'), unilateral: true }
   ],
   calf: [
-    { name: 'Wadenheben (beidbeinig)',            hint: 'Fußballen auf Treppenstufe oder Buch, Fersen tief absenken, dann maximal hochdrücken. 2 Sek. oben halten, 3 Sek. absenken.', images: imgs('Calf_Raise_On_A_Dumbbell') },
-    { name: 'Wadenheben (einbeinig)',             hint: 'Einbeinig auf Stufe/Buch. Voller Bewegungsumfang, Ferse tief unter die Kante. Beide Seiten.', images: imgs('Calf_Raise_On_A_Dumbbell'), unilateral: true },
+    { name: 'Wadenheben (beidbeinig)',            hint: 'Fußballen auf der Mattenkante, flacher Stand geht auch. Maximal hochdrücken, 2 Sek. oben halten, 3 Sek. absenken.', images: imgs('Calf_Raise_On_A_Dumbbell') },
+    { name: 'Wadenheben (einbeinig)',             hint: 'Einbeinig, Fußballen auf der Mattenkante. Voller Bewegungsumfang, kontrolliert. Beide Seiten.', images: imgs('Calf_Raise_On_A_Dumbbell'), unilateral: true },
     { name: 'Wadenheben einbeinig (Tempo)',       hint: 'Einbeinig, 3 Sek. hoch, 2 Sek. halten, 3 Sek. tief. Ohne Festhalten für extra Balance-Reiz. Beide Seiten.', images: imgs('Calf_Raise_On_A_Dumbbell'), unilateral: true }
   ],
   core: [
