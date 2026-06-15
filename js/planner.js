@@ -50,17 +50,26 @@ export function isDeloadWeek(week) {
   return weekInPhase === 4 && phase < 3;
 }
 
-export function generateExercise(spec, profile, week) {
+// Löst die Leiter-Stufe für eine Übung auf (vor dem Klemmen, inkl. Secondary-Abschlag).
+export function resolveLadderIndex(spec, profile, week) {
+  const phase   = Math.ceil(week / 4);
+  const ladder  = PROGRESSIONS[spec.pattern];
+  const baseIdx = profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1);
+  const adjust  = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
+  let idx = baseIdx + (phase - 1) + adjust;
+  if (spec.priority === 'secondary') idx -= 1;
+  return Math.max(0, Math.min(idx, ladder.length - 1));
+}
+
+export function generateExercise(spec, profile, week, indexOverride = null) {
   const phase       = Math.ceil(week / 4);
   const weekInPhase = ((week - 1) % 4) + 1;
   const isDeload    = isDeloadWeek(week);
 
   const ladder  = PROGRESSIONS[spec.pattern];
-  const baseIdx = profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1);
-  const adjust  = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
-  let idx = baseIdx + (phase - 1) + adjust;
-  if (spec.priority === 'secondary') idx = Math.max(0, idx - 1);
-  idx = Math.max(0, Math.min(idx, ladder.length - 1));
+  const idx = indexOverride !== null
+    ? Math.max(0, Math.min(indexOverride, ladder.length - 1))
+    : resolveLadderIndex(spec, profile, week);
   const exercise = ladder[idx];
 
   const unilateral = !!exercise.unilateral;
@@ -90,7 +99,17 @@ export function generateExercise(spec, profile, week) {
     target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, isDeload };
+  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, isDeload, ladderIdx: idx };
+}
+
+// Wählt für eine Kollision die nächstgelegene freie Stufe – bevorzugt leichter (runter),
+// sonst schwerer (hoch). Verhindert dieselbe Übung zweimal am selben Tag.
+function pickDistinctIndex(idx, used, len) {
+  for (let d = 1; d < len; d++) {
+    if (idx - d >= 0      && !used.has(idx - d)) return idx - d;
+    if (idx + d <= len - 1 && !used.has(idx + d)) return idx + d;
+  }
+  return idx;
 }
 
 export function templateKey(profile) {
@@ -99,6 +118,15 @@ export function templateKey(profile) {
 
 export function generateWorkout(dayIdx, week, profile) {
   const template = DAY_TEMPLATES[templateKey(profile)][dayIdx];
+  const usedByPattern = {};
+  const exercises = template.ex.map(spec => {
+    const ex   = generateExercise(spec, profile, week);
+    const used = usedByPattern[spec.pattern] || (usedByPattern[spec.pattern] = new Set());
+    let idx = ex.ladderIdx;
+    if (used.has(idx)) idx = pickDistinctIndex(idx, used, PROGRESSIONS[spec.pattern].length);
+    used.add(idx);
+    return idx === ex.ladderIdx ? ex : generateExercise(spec, profile, week, idx);
+  });
   return {
     key: template.key,
     name: template.name,
@@ -107,7 +135,7 @@ export function generateWorkout(dayIdx, week, profile) {
     dayIdx,
     isDeload: isDeloadWeek(week),
     isFinale: week === 12,
-    exercises: template.ex.map(spec => generateExercise(spec, profile, week))
+    exercises
   };
 }
 
