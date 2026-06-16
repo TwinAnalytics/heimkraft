@@ -148,11 +148,20 @@ export function planProgress(profile, completedCount) {
   return Math.max(0, (completedCount || 0) - baseline);
 }
 
-export function todaysWorkout(profile, completedCount) {
-  if (!profile) return null;
-  const numDays   = profile.frequency;
+export function currentPlanWeek(profile, completedCount) {
+  if (!profile) return 1;
   const effective = planProgress(profile, completedCount);
-  const dayIdx    = effective % numDays;
-  const week      = Math.min(12, Math.floor(effective / numDays) + 1);
+  return Math.min(12, Math.floor(effective / profile.frequency) + 1);
+}
+
+export function nextDayIdx(profile, completedCount) {
+  if (!profile) return 0;
+  return planProgress(profile, completedCount) % profile.frequency;
+}
+
+export function todaysWorkout(profile, completedCount, dayIdxOverride = null) {
+  if (!profile) return null;
+  const week   = currentPlanWeek(profile, completedCount);
+  const dayIdx = dayIdxOverride !== null ? dayIdxOverride : nextDayIdx(profile, completedCount);
   return generateWorkout(dayIdx, week, profile);
 }

@@ -1629,6 +1629,60 @@
     vertical-align: middle;
   }
 
+  /* Tag-Auswahl vor dem Training */
+  .day-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .day-card {
+    text-align: left;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 20px 22px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.18s, transform 0.18s;
+  }
+  .day-card:hover { border-color: var(--ink-dim); transform: translateY(-2px); }
+  .day-card.suggested { border-color: var(--accent); }
+  .day-card.resume {
+    border-color: var(--accent);
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .dc-tag {
+    font-family: 'JetBrains Mono';
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .day-card.suggested .dc-tag,
+  .day-card.resume .dc-tag { color: var(--accent); }
+  .dc-name {
+    font-family: 'Antonio';
+    font-size: 1.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .dc-focus {
+    font-family: 'Fraunces';
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-dim);
+  }
+  .dc-ex {
+    font-family: 'JetBrains Mono';
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
   /* Logbuch-Extras: Gewicht + Verlauf */
   .log-extras {
     display: grid;

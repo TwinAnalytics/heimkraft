@@ -1,4 +1,4 @@
-const CACHE_NAME = 'heimkraft-v8';
+const CACHE_NAME = 'heimkraft-v9';
 const IMG_CACHE  = 'heimkraft-img-v1';
 const ASSETS = [
   '/',
@@ -15,6 +15,7 @@ const ASSETS = [
   '/js/today.js',
   '/js/retest.js',
   '/js/settings.js',
+  '/js/day-chooser.js',
   '/js/pwa.js',
   '/manifest.json',
   '/icon.svg'

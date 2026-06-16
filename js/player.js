@@ -137,12 +137,12 @@ function persistSnapshot() {
   });
 }
 
-export function openPlayer() {
+export function openPlayer(dayIdxOverride = null) {
   const profile = loadProfile();
   if (!profile) return;
   const trainLog       = getTrainLog();
   const completedCount = Object.keys(trainLog).length;
-  const w = todaysWorkout(profile, completedCount);
+  const w = todaysWorkout(profile, completedCount, dayIdxOverride);
   if (!w) return;
 
   // Unterbrochenes Workout von heute wiederaufnehmen?

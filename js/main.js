@@ -2,10 +2,11 @@ import { setupInstallBanner, registerServiceWorker } from './pwa.js';
 import { renderLog, setupLogbookHandlers } from './logbook.js';
 import { renderToday, isPlanComplete } from './today.js';
 import { openWizard, setupWizardHandlers } from './wizard.js';
-import { openPlayer, setupPlayerHandlers } from './player.js';
+import { setupPlayerHandlers } from './player.js';
 import { openPlan, setupPlanHandlers } from './plan-view.js';
 import { openRetest, setupRetestHandlers } from './retest.js';
 import { setupSettingsHandlers } from './settings.js';
+import { openDayChooser, setupDayChooserHandlers } from './day-chooser.js';
 import { loadProfile, clearProfile, clearSessionSnapshot } from './storage.js';
 
 setupInstallBanner();
@@ -17,12 +18,13 @@ setupPlayerHandlers();
 setupPlanHandlers();
 setupRetestHandlers();
 setupSettingsHandlers();
+setupDayChooserHandlers();
 
 document.getElementById('ctaStart').addEventListener('click', () => {
   const profile = loadProfile();
   if (!profile) openWizard();
   else if (isPlanComplete(profile)) openRetest();
-  else openPlayer();
+  else openDayChooser();
 });
 
 document.getElementById('ctaReset').addEventListener('click', () => {
