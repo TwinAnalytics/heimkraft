@@ -14,10 +14,11 @@ let wakeLock = null;
 const PATTERN_DE = {
   push: 'Push', pike: 'Pike', pull: 'Pull',
   squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core',
-  jump: 'Sprung', bound: 'Antritt', rotate: 'Rotation', condition: 'Intervall'
+  jump: 'Sprung', bound: 'Antritt', rotate: 'Rotation', condition: 'Intervall',
+  biceps: 'Bizeps', triceps: 'Trizeps'
 };
 
-const ALL_PATTERNS = ['push','pike','pull','squat','hinge','calf','core','jump','bound','rotate','condition'];
+const ALL_PATTERNS = ['push','pike','pull','squat','hinge','calf','core','jump','bound','rotate','condition','biceps','triceps'];
 
 /* ── Audio: geteilter Context, auf erster User-Geste entsperrt (iOS) ── */
 let audioCtx = null;

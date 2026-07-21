@@ -72,8 +72,8 @@ function persist() {
 
   // Anpassungen und angefangene Einheit gelten für die alte Auswahl
   profile.levelAdjust = {
-    push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0,
-    core: 0, jump: 0, bound: 0, rotate: 0, condition: 0
+    push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0,
+    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0
   };
   saveProfile(profile);
   clearSessionSnapshot();

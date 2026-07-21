@@ -132,14 +132,25 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     target = unilateral ? `${range} Sprünge pro Seite` : `${range} Sprünge`;
   } else {
     type = 'reps';
-    sets = isDeload ? 3 : (spec.pattern === 'calf' ? 3 : 4);
+    // Arme brauchen keine vier Sätze — sie arbeiten beim Drücken und Ziehen mit
+    const isArm = spec.pattern === 'biceps' || spec.pattern === 'triceps';
+    sets = isDeload ? 3 : (spec.pattern === 'calf' || isArm ? 3 : 4);
     let ranges;
     if (power) {
-      // Schnellkraft: niedrige Wiederholungen mit voller Geschwindigkeit,
-      // bewusst mit Reserve — Ermüdung senkt die Bewegungsgeschwindigkeit.
-      ranges = spec.pattern === 'rotate'
-        ? ['8–10', '10–12', '12–14']
-        : (spec.priority === 'main' ? ['4–6', '5–6', '6–8'] : ['6–8', '6–8', '8–10']);
+      // Zwei Welten in einem Plan: Beine werden explosiv und mit Reserve
+      // trainiert (Ermüdung senkt die Bewegungsgeschwindigkeit), der
+      // Oberkörper dagegen im Aufbaubereich — Ziel ist sichtbare Muskulatur.
+      const armPattern   = spec.pattern === 'biceps' || spec.pattern === 'triceps';
+      const upperPattern = spec.pattern === 'push' || spec.pattern === 'pike' || spec.pattern === 'pull';
+      if (armPattern) {
+        ranges = ['10–12', '12–14', '12–15'];
+      } else if (upperPattern) {
+        ranges = spec.priority === 'main' ? ['8–10', '9–12', '10–12'] : ['10–12', '10–12', '12–15'];
+      } else if (spec.pattern === 'rotate') {
+        ranges = ['8–10', '10–12', '12–14'];
+      } else {
+        ranges = spec.priority === 'main' ? ['4–6', '5–6', '6–8'] : ['6–8', '6–8', '8–10'];
+      }
     } else if (spec.pattern === 'calf') {
       // Waden vertragen bei Zusatzlast weniger Wdh. als im reinen Körpergewicht
       ranges = weighted ? ['12–15', '14–18', '15–20'] : ['15–20', '18–22', '20–25'];
@@ -151,7 +162,10 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     } else {
       ranges = ['6–8', '8–10', '10–12'];
     }
-    const deloadRange = power ? '4' : (spec.pattern === 'calf' ? '12' : (spec.priority === 'main' ? '8' : '6'));
+    const deloadRange = power
+      ? (spec.pattern === 'biceps' || spec.pattern === 'triceps' ? '10'
+         : (['push','pike','pull','rotate'].includes(spec.pattern) ? '8' : '4'))
+      : (spec.pattern === 'calf' ? '12' : (spec.priority === 'main' ? '8' : '6'));
     const range = isDeload ? deloadRange : ranges[rangeIdx];
     target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
   }

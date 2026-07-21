@@ -134,20 +134,36 @@ export const PROGRESSIONS_POWER = {
     { name: 'Goblet Squat (explosiv)',   hint: 'Eine Hantel vor der Brust. Kontrolliert runter, so schnell wie möglich hoch. Moderates Gewicht — Geschwindigkeit schlägt Last.', images: imgs('Goblet_Squat'), weighted: true, oneDb: true },
     { name: 'Kniebeuge mit Sprung',      hint: 'Tief in die Hocke, explosiv nach oben abspringen, weich landen. Ohne Zusatzgewicht.', images: imgs('Freehand_Jump_Squat') }
   ],
+  // Oberkörper: hier geht es um Muskelaufbau und Definition, nicht um
+  // Schnellkraft. Deshalb mittlere Wiederholungen, sauber geführt, mit
+  // ein bis zwei Wiederholungen Reserve statt bis zum Muskelversagen.
   push: [
-    { name: 'Explosive Liegestütze',     hint: 'Runter kontrolliert, hoch so schnell, dass die Hände fast abheben. Kein langsames Absenken — jede Wiederholung ist ein Antritt.', images: imgs('Pushups') },
-    { name: 'Plyo Push-ups',             hint: 'So kräftig hochdrücken, dass die Hände den Boden verlassen. Weich abfangen. Auf der Matte, nicht auf hartem Boden.', images: imgs('Plyo_Push-up') },
-    { name: 'Plyo Push-ups mit Klatschen', hint: 'Wie zuvor, in der Flugphase kurz klatschen. Nur wenn du sicher und weich abfängst.', images: imgs('Plyo_Push-up') }
+    { name: 'Kurzhantel Floor Press',    hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, dann kraftvoll hoch. Der beste Brustreiz ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true },
+    { name: 'Enges Floor Press',         hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true },
+    { name: 'Explosive Liegestütze',     hint: 'Runter kontrolliert, hoch so schnell, dass die Hände fast abheben. Ergänzt das Drücken um einen Schnellkraftreiz.', images: imgs('Pushups') },
+    { name: 'Plyo Push-ups',             hint: 'So kräftig hochdrücken, dass die Hände den Boden verlassen. Weich abfangen. Auf der Matte, nicht auf hartem Boden.', images: imgs('Plyo_Push-up') }
   ],
   pike: [
-    { name: 'Push Press',                hint: 'Leichte Kniebeuge, dann Hanteln explosiv aus den Beinen über den Kopf beschleunigen. Ganzkörper-Schnellkraft.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
-    { name: 'Schulterdrücken (zügig)',   hint: 'Ohne Beineinsatz, aber mit voller Beschleunigung nach oben. Kontrolliert absenken. 2–3 Wdh. im Tank lassen.', images: imgs('Seated_Dumbbell_Press'), weighted: true },
-    { name: 'Pike Push-ups',             hint: 'Hüfte hoch wie ein umgekehrtes V, Kopf zügig Richtung Boden und kraftvoll hochdrücken.', images: imgs('Handstand_Push-Ups') }
+    { name: 'Schulterdrücken (sitzend)', hint: 'Auf dem Stuhl, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, kontrolliert absenken. Die Basisübung für runde Schultern.', images: imgs('Seated_Dumbbell_Press'), weighted: true },
+    { name: 'Schulterdrücken (stehend)', hint: 'Im Stand, Bauch fest, Rippen unten — kein Hohlkreuz. Die Ganzkörperspannung macht es schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
+    { name: 'Arnold Press',              hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Trifft durch die Rotation die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'), weighted: true },
+    { name: 'Pike Push-ups',             hint: 'Hüfte hoch wie ein umgekehrtes V, Kopf Richtung Boden absenken und kraftvoll hochdrücken.', images: imgs('Handstand_Push-Ups') }
   ],
   pull: [
-    { name: 'Einarmiges Rudern (zügig)', hint: 'Hand und Knie auf dem Stuhl. Hantel explosiv zur Hüfte ziehen, kontrolliert ablassen. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'), weighted: true, unilateral: true, oneDb: true },
-    { name: 'Vorgebeugtes Rudern',       hint: 'Beide Hanteln kraftvoll zur Hüfte ziehen, oben kurz halten. Rücken bleibt gerade.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
+    { name: 'Einarmiges Kurzhantel-Rudern', hint: 'Hand und Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Vorgebeugtes Rudern',       hint: 'Hüfte zurück, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln zur Hüfte ziehen, oben kurz halten.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
+    { name: 'Reverse Flyes',             hint: 'Vorgebeugt, leicht gebeugte Arme seitlich nach außen und oben führen. Trifft die hintere Schulter und den oberen Rücken — die beste Haltungsübung.', images: imgs('Reverse_Flyes'), weighted: true },
     { name: 'Reverse Snow Angels',       hint: 'Bauchlage, Arme gestreckt über den Kopf und zurück. Hält die Schultern hinten — Gegengewicht zum vielen Vorbeugen im Spiel.', images: imgs('Superman') }
+  ],
+  biceps: [
+    { name: 'Bizeps-Curls',              hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true },
+    { name: 'Hammer-Curls',              hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true },
+    { name: 'Konzentrations-Curls',      hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, unilateral: true, oneDb: true }
+  ],
+  triceps: [
+    { name: 'Trizeps-Strecken über Kopf',hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, oneDb: true },
+    { name: 'Trizeps-Kickbacks',         hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Dips am Stuhl',             hint: 'Hände auf der Stuhlkante hinter dir, Füße nach vorne. Körper absenken bis die Ellbogen 90° erreichen, dann hochdrücken.', images: imgs('Bench_Dips') }
   ],
   core: [
     { name: 'Hollow Body Hold',          hint: 'Auf dem Rücken, Arme über Kopf, Beine tief — alles schwebt. Lendenwirbelsäule bleibt am Boden. Der Grundspannungs-Test für Fallrückzieher.', images: imgs('Flutter_Kicks'), static: true },
@@ -178,7 +194,9 @@ export const PATTERN_LABELS = {
   jump:      'PLYO · SPRUNGKRAFT',
   bound:     'PLYO · ANTRITT',
   rotate:    'CORE · ROTATION',
-  condition: 'KONDITION · INTERVALL'
+  condition: 'KONDITION · INTERVALL',
+  biceps:    'ARME · BIZEPS',
+  triceps:   'ARME · TRIZEPS'
 };
 
 export const DAY_TEMPLATES = {
@@ -249,47 +267,54 @@ export const DAY_TEMPLATES = {
   // Jede Einheit paart einen Sprung- oder Schnellkraftreiz mit zwei
   // Hantelübungen: die Sprünge machen dich schnell, die Hanteln liefern
   // die Kraft, aus der die Geschwindigkeit überhaupt entstehen kann.
+  // Sprungkraft steht immer am Anfang (mit frischen Beinen), danach folgt
+  // der Oberkörper mit Aufbau-Wiederholungen. Beinvolumen bleibt bewusst
+  // gering — dafür sorgt schon der Sand.
   'power3': [
-    { key: 'pwA', name: 'Sprungkraft & Druck', focus: 'Absprung · Schulter · Brust',
+    { key: 'pwA', name: 'Druck & Sprungkraft', focus: 'Absprung · Brust · Schultern · Trizeps',
       ex: [
-        { pattern: 'jump',   priority: 'main' },
-        { pattern: 'pike',   priority: 'main' },
-        { pattern: 'push',   priority: 'secondary' },
-        { pattern: 'core',   priority: 'main' }
+        { pattern: 'jump',    priority: 'main' },
+        { pattern: 'push',    priority: 'main' },
+        { pattern: 'pike',    priority: 'main' },
+        { pattern: 'triceps', priority: 'main' },
+        { pattern: 'core',    priority: 'main' }
       ]
     },
-    { key: 'pwB', name: 'Kraftbasis & Rumpf', focus: 'Hüfte · Beine · Rücken · Rotation',
+    { key: 'pwB', name: 'Zug & Kraftbasis', focus: 'Rücken · Bizeps · Hüfte',
       ex: [
         { pattern: 'hinge',  priority: 'main' },
-        { pattern: 'squat',  priority: 'main' },
         { pattern: 'pull',   priority: 'main' },
+        { pattern: 'pull',   priority: 'secondary' },
+        { pattern: 'biceps', priority: 'main' },
         { pattern: 'rotate', priority: 'main' }
       ]
     },
-    { key: 'pwC', name: 'Antritt & Ausdauer', focus: 'Richtungswechsel · Wiederholungskraft',
+    { key: 'pwC', name: 'Beine & Ausdauer', focus: 'Richtungswechsel · Beinkraft · Wiederholungskraft',
       ex: [
         { pattern: 'bound',     priority: 'main' },
+        { pattern: 'squat',     priority: 'main' },
         { pattern: 'condition', priority: 'main' },
-        { pattern: 'rotate',    priority: 'secondary' },
         { pattern: 'core',      priority: 'main' }
       ]
     }
   ],
   // Kompaktvariante für Wochen mit vier Spieleinheiten
   'power2': [
-    { key: 'pwSA', name: 'Sprungkraft & Oberkörper', focus: 'Absprung · Schulter · Rücken',
+    { key: 'pwSA', name: 'Druck & Sprungkraft', focus: 'Absprung · Brust · Schultern · Trizeps',
       ex: [
-        { pattern: 'jump',   priority: 'main' },
-        { pattern: 'pike',   priority: 'main' },
-        { pattern: 'pull',   priority: 'main' },
-        { pattern: 'core',   priority: 'main' }
+        { pattern: 'jump',    priority: 'main' },
+        { pattern: 'push',    priority: 'main' },
+        { pattern: 'pike',    priority: 'main' },
+        { pattern: 'triceps', priority: 'main' },
+        { pattern: 'core',    priority: 'main' }
       ]
     },
-    { key: 'pwSB', name: 'Kraftbasis & Ausdauer', focus: 'Hüfte · Beine · Wiederholungskraft',
+    { key: 'pwSB', name: 'Zug & Beine', focus: 'Rücken · Bizeps · Hüfte · Ausdauer',
       ex: [
         { pattern: 'hinge',     priority: 'main' },
-        { pattern: 'squat',     priority: 'main' },
-        { pattern: 'bound',     priority: 'secondary' },
+        { pattern: 'pull',      priority: 'main' },
+        { pattern: 'biceps',    priority: 'main' },
+        { pattern: 'squat',     priority: 'secondary' },
         { pattern: 'condition', priority: 'main' }
       ]
     }
