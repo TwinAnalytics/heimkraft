@@ -89,14 +89,96 @@ export const PROGRESSIONS_DB = {
 // Muster, die bei aktiven Hanteln auf die Hantel-Leiter wechseln.
 export const DB_PATTERNS = Object.keys(PROGRESSIONS_DB);
 
+// ── ATHLETIK / SCHNELLKRAFT ──────────────────────────────────────────────
+// Ziel ist maximale Bewegungsgeschwindigkeit, nicht Muskelversagen. Deshalb
+// wenige Wiederholungen, volle Absicht bei jeder einzelnen, lange Pausen.
+// Einträge mit weighted:true werden ohne Hanteln automatisch übersprungen.
+export const PROGRESSIONS_POWER = {
+  // Sprungkraft — Schwerpunkt vertikal
+  jump: [
+    { name: 'Pogo Hops',                 hint: 'Kleine, sehr schnelle Sprünge nur aus dem Sprunggelenk. Knie fast gestreckt, Boden wie eine heiße Herdplatte verlassen. Baut die Federkraft der Achillessehne auf.', images: imgs('Fast_Skipping') },
+    { name: 'Strecksprünge',             hint: 'Aus der Halbhocke explosiv so hoch wie möglich. Weich landen, kurz zurücksetzen, dann erst der nächste Sprung. Jeder Sprung ist ein Maximalversuch.', images: imgs('Freehand_Jump_Squat') },
+    { name: 'Tuck Jumps',                hint: 'Maximal hoch springen und beide Knie zur Brust ziehen. Kontrolliert landen. Sobald die Höhe sichtbar abfällt: Satz beenden.', images: imgs('Knee_Tuck_Jump') },
+    { name: 'Einbeinige Strecksprünge',  hint: 'Einbeinig maximal hoch, auf demselben Bein weich landen und stabilisieren. Übertragung auf den einbeinigen Absprung im Spiel. Beide Seiten.', images: imgs('Rocket_Jump'), unilateral: true },
+    { name: 'Absprung vom Stuhl',        hint: 'Vom Stuhl heruntersteigen (nicht springen), bei Bodenkontakt sofort maximal hoch. Bodenkontakt so kurz wie möglich. Nur ausgeruht und nur an spielfreien Tagen.', images: imgs('Bench_Jump') }
+  ],
+  // Antritt & Richtungswechsel — horizontal und seitlich
+  bound: [
+    { name: 'Seitliche Sprünge',         hint: 'Von einem Bein seitlich auf das andere abspringen, weich landen und 1 Sek. stabilisieren. Wie der Ausfallschritt zum Ball.', images: imgs('Lateral_Bound'), unilateral: true },
+    { name: 'Standweitsprung',           hint: 'Aus dem Stand so weit wie möglich nach vorne, beidbeinig weich landen. Zwischen den Sprüngen komplett zurückstellen.', images: imgs('Standing_Long_Jump') },
+    { name: 'Sprung-Ausfallschritte',    hint: 'Im Ausfallschritt explosiv hochspringen und in der Luft die Beine wechseln. Aufrechter Oberkörper.', images: imgs('Split_Jump'), unilateral: true }
+  ],
+  // Rumpfrotation & Schusshärte
+  rotate: [
+    { name: 'Russian Twist',             hint: 'Sitzend, Oberkörper zurückgelehnt, Füße frei. Zügig von Seite zu Seite drehen — die Rotation kommt aus dem Rumpf, nicht aus den Armen.', images: imgs('Russian_Twist'), unilateral: true },
+    { name: 'Russian Twist mit Hantel',  hint: 'Wie zuvor, eine Hantel vor der Brust. Sauber und zügig rotieren, nicht schleudern. Beide Seiten.', images: imgs('Russian_Twist'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Liegestütz mit Rotation',   hint: 'Liegestütz, oben eine Hand zur Decke öffnen und den Rumpf mit aufdrehen. Hüfte bleibt hoch. Verbindet Druckkraft mit Rotation. Beide Seiten.', images: imgs('Push_Up_to_Side_Plank'), unilateral: true }
+  ],
+  // Wiederholungskraft — kurz und hart, gegen den Leistungsabfall im Spiel
+  condition: [
+    { name: 'Fersen-Sprints auf der Stelle', hint: 'Auf der Stelle sprinten, Knie hoch, Arme mit. All-out für die volle Zeit — das ist ein Sprint, kein Jogging.', images: imgs('Fast_Skipping'), restSec: 40 },
+    { name: 'Star Jumps',                    hint: 'Explosiv aus der Hocke in die Streckung springen, Arme und Beine weit auseinander. Tempo hochhalten.', images: imgs('Star_Jump'), restSec: 40 },
+    { name: 'Bergsteiger',                   hint: 'In der Liegestützposition die Knie so schnell wie möglich abwechselnd zur Brust ziehen. Hüfte bleibt tief.', images: imgs('Spider_Crawl'), restSec: 40 }
+  ],
+  // Kraftbasis — explosiv bewegt, bewusst nicht bis zum Versagen.
+  // Hantelvarianten stehen vorn; die Körpergewichtsübung greift, wenn keine
+  // Hanteln da sind (beladene Einträge werden dann herausgefiltert).
+  hinge: [
+    { name: 'Rumänisches Kreuzheben',    hint: 'Die wichtigste Kraftbasis für den Absprung. Hüfte weit zurück, Rücken gerade, aus der Dehnung zügig hochkommen. 2–3 Wdh. im Tank lassen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
+    { name: 'RDL mit Pause',             hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten, dann zügig hoch. Härtet die Hamstrings genau dort, wo sie im Sprint reißen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
+    { name: 'Einbeiniges RDL',           hint: 'Einbeinig, Hantel in der Gegenhand. Hüfte gerade halten — schult genau die Stabilität, die im Sand fehlt. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Explosive Glute Bridge',    hint: 'Hüfte so schnell wie möglich nach oben schnellen, oben 1 Sek. maximal anspannen, kontrolliert ab. Beidbeinig.', images: imgs('Butt_Lift_Bridge') }
+  ],
+  squat: [
+    { name: 'Bulgarische Splitkniebeuge',hint: 'Hinterer Fuß auf dem Stuhl. Kontrolliert runter, zügig hoch. Einbeinige Stabilität für Landungen und Richtungswechsel. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, unilateral: true },
+    { name: 'Goblet Squat (explosiv)',   hint: 'Eine Hantel vor der Brust. Kontrolliert runter, so schnell wie möglich hoch. Moderates Gewicht — Geschwindigkeit schlägt Last.', images: imgs('Goblet_Squat'), weighted: true, oneDb: true },
+    { name: 'Kniebeuge mit Sprung',      hint: 'Tief in die Hocke, explosiv nach oben abspringen, weich landen. Ohne Zusatzgewicht.', images: imgs('Freehand_Jump_Squat') }
+  ],
+  push: [
+    { name: 'Explosive Liegestütze',     hint: 'Runter kontrolliert, hoch so schnell, dass die Hände fast abheben. Kein langsames Absenken — jede Wiederholung ist ein Antritt.', images: imgs('Pushups') },
+    { name: 'Plyo Push-ups',             hint: 'So kräftig hochdrücken, dass die Hände den Boden verlassen. Weich abfangen. Auf der Matte, nicht auf hartem Boden.', images: imgs('Plyo_Push-up') },
+    { name: 'Plyo Push-ups mit Klatschen', hint: 'Wie zuvor, in der Flugphase kurz klatschen. Nur wenn du sicher und weich abfängst.', images: imgs('Plyo_Push-up') }
+  ],
+  pike: [
+    { name: 'Push Press',                hint: 'Leichte Kniebeuge, dann Hanteln explosiv aus den Beinen über den Kopf beschleunigen. Ganzkörper-Schnellkraft.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
+    { name: 'Schulterdrücken (zügig)',   hint: 'Ohne Beineinsatz, aber mit voller Beschleunigung nach oben. Kontrolliert absenken. 2–3 Wdh. im Tank lassen.', images: imgs('Seated_Dumbbell_Press'), weighted: true },
+    { name: 'Pike Push-ups',             hint: 'Hüfte hoch wie ein umgekehrtes V, Kopf zügig Richtung Boden und kraftvoll hochdrücken.', images: imgs('Handstand_Push-Ups') }
+  ],
+  pull: [
+    { name: 'Einarmiges Rudern (zügig)', hint: 'Hand und Knie auf dem Stuhl. Hantel explosiv zur Hüfte ziehen, kontrolliert ablassen. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Vorgebeugtes Rudern',       hint: 'Beide Hanteln kraftvoll zur Hüfte ziehen, oben kurz halten. Rücken bleibt gerade.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
+    { name: 'Reverse Snow Angels',       hint: 'Bauchlage, Arme gestreckt über den Kopf und zurück. Hält die Schultern hinten — Gegengewicht zum vielen Vorbeugen im Spiel.', images: imgs('Superman') }
+  ],
+  core: [
+    { name: 'Hollow Body Hold',          hint: 'Auf dem Rücken, Arme über Kopf, Beine tief — alles schwebt. Lendenwirbelsäule bleibt am Boden. Der Grundspannungs-Test für Fallrückzieher.', images: imgs('Flutter_Kicks'), static: true },
+    { name: 'Side Plank',                hint: 'Seitlich auf dem Unterarm, Hüfte hoch. Stabilisiert seitlich gegen das Wegkippen bei Landungen. Beide Seiten.', images: imgs('Side_Bridge'), static: true, unilateral: true },
+    { name: 'Hollow Rocks',              hint: 'Aus dem Hollow Hold in eine schaukelnde Bewegung kommen, Spannung nie verlieren. Elastische Rumpfspannung.', images: imgs('Cocoons'), static: true }
+  ]
+};
+
+// Aufwärmen für den Athletik-Modus: mehr Hüftöffnung und Aktivierung,
+// weniger Herz-Kreislauf — der Sprungteil braucht frische Beine.
+export const WARMUP_POWER = [
+  { name: 'Lockeres Einlaufen',         seconds: 45, hint: 'Auf der Stelle traben, Schultern locker ausschütteln. Nur den Kreislauf hochfahren, nicht ermüden.' },
+  { name: 'Hüftkreisen & Beinpendel',   seconds: 60, hint: 'Hüfte in beide Richtungen kreisen. Dann Bein vor/zurück und seitlich pendeln — je 15 Sek. pro Seite. Amplitude langsam größer werden lassen.' },
+  { name: 'Tiefe Hocke & Groiners',     seconds: 60, hint: 'In die tiefe Hocke setzen, mit den Ellbogen die Knie nach außen drücken. Dann im Ausfallschritt den Ellbogen neben den Fuß bringen — je 5× pro Seite.' },
+  { name: 'Cat-Cow & Rumpfrotation',    seconds: 45, hint: 'Vierfüßlerstand, Rücken runden und durchhängen. Dann eine Hand zur Decke öffnen und die Brustwirbelsäule aufdrehen — je 5× pro Seite.' },
+  { name: 'Anfersen & Kniehebelauf',    seconds: 45, hint: 'Je 20 Sek. Fersen zum Gesäß und Knie auf Hüfthöhe. Sauberer Fußaufsatz auf dem Ballen.' },
+  { name: 'Probesprünge',               seconds: 30, hint: 'Fünf lockere Strecksprünge bei etwa 70 Prozent. Weiche Landungen üben, dann bist du bereit für den ersten Satz.' }
+];
+
 export const PATTERN_LABELS = {
-  push:  'PUSH · HORIZONTAL',
-  pike:  'PUSH · VERTIKAL',
-  pull:  'PULL · ZIEHEN',
-  squat: 'SQUAT · BEINE',
-  hinge: 'HINGE · POSTERIOR',
-  calf:  'CALVES · WADEN',
-  core:  'CORE · STABILITÄT'
+  push:      'PUSH · HORIZONTAL',
+  pike:      'PUSH · VERTIKAL',
+  pull:      'PULL · ZIEHEN',
+  squat:     'SQUAT · BEINE',
+  hinge:     'HINGE · POSTERIOR',
+  calf:      'CALVES · WADEN',
+  core:      'CORE · STABILITÄT',
+  jump:      'PLYO · SPRUNGKRAFT',
+  bound:     'PLYO · ANTRITT',
+  rotate:    'CORE · ROTATION',
+  condition: 'KONDITION · INTERVALL'
 };
 
 export const DAY_TEMPLATES = {
@@ -159,6 +241,52 @@ export const DAY_TEMPLATES = {
         { pattern: 'squat', priority: 'secondary' },
         { pattern: 'calf',  priority: 'main' },
         { pattern: 'core',  priority: 'main' }
+      ]
+    }
+  ],
+  // Athletik-Split: Sprungkraft zuerst (mit frischen Beinen), danach Kraftbasis.
+  // Bewusst wenig Beinvolumen — der Sand liefert davon schon reichlich.
+  'power3': [
+    { key: 'pwA', name: 'Sprungkraft', focus: 'Absprung · Oberkörper · Rotation',
+      ex: [
+        { pattern: 'jump',   priority: 'main' },
+        { pattern: 'push',   priority: 'main' },
+        { pattern: 'pull',   priority: 'main' },
+        { pattern: 'rotate', priority: 'main' }
+      ]
+    },
+    { key: 'pwB', name: 'Rumpf & Hüfte', focus: 'Kraftbasis · Stabilität · Prophylaxe',
+      ex: [
+        { pattern: 'hinge',  priority: 'main' },
+        { pattern: 'squat',  priority: 'secondary' },
+        { pattern: 'rotate', priority: 'main' },
+        { pattern: 'core',   priority: 'main' }
+      ]
+    },
+    { key: 'pwC', name: 'Antritt & Ausdauer', focus: 'Richtungswechsel · Wiederholungskraft',
+      ex: [
+        { pattern: 'bound',     priority: 'main' },
+        { pattern: 'condition', priority: 'main' },
+        { pattern: 'core',      priority: 'main' }
+      ]
+    }
+  ],
+  // Kompaktvariante für Wochen mit vier Spieleinheiten
+  'power2': [
+    { key: 'pwSA', name: 'Sprungkraft', focus: 'Absprung · Oberkörper',
+      ex: [
+        { pattern: 'jump',   priority: 'main' },
+        { pattern: 'push',   priority: 'main' },
+        { pattern: 'pull',   priority: 'main' },
+        { pattern: 'core',   priority: 'main' }
+      ]
+    },
+    { key: 'pwSB', name: 'Hüfte & Ausdauer', focus: 'Kraftbasis · Rotation · Wiederholungskraft',
+      ex: [
+        { pattern: 'hinge',     priority: 'main' },
+        { pattern: 'bound',     priority: 'secondary' },
+        { pattern: 'rotate',    priority: 'main' },
+        { pattern: 'condition', priority: 'main' }
       ]
     }
   ],

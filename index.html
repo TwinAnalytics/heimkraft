@@ -99,7 +99,7 @@
       <h3>Mechanische Spannung</h3>
       <p>Hypertrophie entsteht durch hohe Last bei kontrollierter Bewegung. Drei bis vier Sekunden exzentrisch absenken. Spannung im Muskel halten. Kein Schwung. Kein Reißen.</p>
     </div>
-    <div class="principle">
+    <div class="principle" id="principle03">
       <span class="pnum">03</span>
       <h3>Nahe an Versagen</h3>
       <p>Die letzten zwei bis drei Wiederholungen jedes Satzes müssen schwer sein. Wenn du saubere zwanzig Liegestütze machst, ist es Zeit für die nächste Stufe – nicht für vierzig.</p>
@@ -176,7 +176,7 @@
     <div class="sec-num">§ 06 / 06 — Nicht verhandelbar</div>
   </div>
   <div class="rules-grid">
-    <div class="rule-block">
+    <div class="rule-block" id="ruleNutrition">
       <h3>Ernährung</h3>
       <p>Muskeln bauen sich aus Aminosäuren auf. Ohne ausreichend Eiweiß bleibt jeder Trainingsplan wirkungslos.</p>
       <ul>
@@ -496,6 +496,24 @@
     <button class="modal-close" id="settingsClose" aria-label="Schließen">×</button>
   </div>
   <div class="modal-body">
+    <div class="set-group">
+      <h3>Trainingsziel</h3>
+      <p class="set-hint">Bestimmt Übungsauswahl, Wiederholungen und Pausen. Athletik trainiert explosiv mit Reserve statt bis zum Muskelversagen.</p>
+      <div class="set-row">
+        <label for="setGoal">Ziel</label>
+        <select id="setGoal">
+          <option value="hypertrophy">Muskelaufbau</option>
+          <option value="power">Athletik &amp; Schnellkraft</option>
+        </select>
+      </div>
+      <div class="set-row" id="setSplitRow">
+        <label for="setSplit">Einheiten pro Woche<small>Bei viel Sport im Sand lieber zwei</small></label>
+        <select id="setSplit">
+          <option value="power2">2× Athletik</option>
+          <option value="power3">3× Athletik</option>
+        </select>
+      </div>
+    </div>
     <div class="set-group">
       <h3>Ausrüstung</h3>
       <p class="set-hint">Mit Kurzhanteln wechseln Rücken, Beine, Po und Schultern auf beladbare Übungen. Liegestütze und Core bleiben Körpergewicht.</p>

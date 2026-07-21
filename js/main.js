@@ -6,6 +6,7 @@ import { setupPlayerHandlers } from './player.js';
 import { openPlan, setupPlanHandlers } from './plan-view.js';
 import { openRetest, setupRetestHandlers } from './retest.js';
 import { setupSettingsHandlers } from './settings.js';
+import { renderGoalCopy } from './goal-copy.js';
 import { openDayChooser, setupDayChooserHandlers } from './day-chooser.js';
 import { loadProfile, clearProfile, clearSessionSnapshot } from './storage.js';
 
@@ -42,6 +43,7 @@ document.getElementById('btnViewPlan').addEventListener('click', () => {
 
 renderLog();
 renderToday();
+renderGoalCopy();
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });

@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "heimkraft",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-c",
+        "import os; os.chdir('/Users/stefanhofmann/Documents/Heimkraft'); from http.server import HTTPServer, SimpleHTTPRequestHandler; HTTPServer(('127.0.0.1', 5173), SimpleHTTPRequestHandler).serve_forever()"
+      ],
+      "port": 5173
+    }
+  ]
+}

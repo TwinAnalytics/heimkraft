@@ -1,10 +1,25 @@
-import { PROGRESSIONS, PROGRESSIONS_DB, DAY_TEMPLATES } from './data.js';
+import { PROGRESSIONS, PROGRESSIONS_DB, PROGRESSIONS_POWER, DAY_TEMPLATES } from './data.js';
 
-// Welche Übungsleiter gilt für dieses Muster? Mit Hanteln wechseln pull/squat/
-// hinge/pike/calf auf die Hantel-Varianten; push und core bleiben Körpergewicht.
+export function goalOf(profile) {
+  return (profile && profile.goal) || 'hypertrophy';
+}
+
+export function isPowerGoal(profile) {
+  return goalOf(profile) === 'power';
+}
+
+// Welche Übungsleiter gilt für dieses Muster?
+// Athletik-Ziel: eigene Schnellkraft-Leitern; ohne Hanteln fallen beladene
+// Varianten heraus. Hypertrophie: mit Hanteln wechseln pull/squat/hinge/pike/
+// calf auf die Hantel-Varianten, push und core bleiben Körpergewicht.
 export function ladderFor(pattern, profile) {
-  if (profile && profile.dumbbells && PROGRESSIONS_DB[pattern]) return PROGRESSIONS_DB[pattern];
-  return PROGRESSIONS[pattern];
+  const hasDb = !!(profile && profile.dumbbells);
+  if (isPowerGoal(profile) && PROGRESSIONS_POWER[pattern]) {
+    const ladder = PROGRESSIONS_POWER[pattern].filter(e => hasDb || !e.weighted);
+    return ladder.length ? ladder : PROGRESSIONS_POWER[pattern];
+  }
+  if (hasDb && PROGRESSIONS_DB[pattern]) return PROGRESSIONS_DB[pattern];
+  return PROGRESSIONS[pattern] || PROGRESSIONS_POWER[pattern];
 }
 
 export function ytLink(exerciseName) {
@@ -64,8 +79,12 @@ export function resolveLadderIndex(spec, profile, week) {
   const phase   = Math.ceil(week / 4);
   const ladder  = ladderFor(spec.pattern, profile);
   const adjust  = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
-  const weighted = !!(profile && profile.dumbbells && PROGRESSIONS_DB[spec.pattern]);
-  const baseIdx = weighted ? 0 : (profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1));
+  // Bei Hantel- und Schnellkraft-Übungen zählt die Krafteinstufung nicht:
+  // dort steuern Gewicht bzw. Technik die Belastung, nicht die Wizard-Werte.
+  const fromScratch = isPowerGoal(profile) ||
+                      !!(profile.dumbbells && PROGRESSIONS_DB[spec.pattern]) ||
+                      !PROGRESSIONS[spec.pattern];
+  const baseIdx = fromScratch ? 0 : (profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1));
   let idx = baseIdx + (phase - 1) + adjust;
   if (spec.priority === 'secondary') idx -= 1;
   return Math.max(0, Math.min(idx, ladder.length - 1));
@@ -88,18 +107,40 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   // W12 (weekInPhase 4 in Phase 3) trainiert auf Woche-3-Niveau weiter
   const rangeIdx = Math.min(weekInPhase, 3) - 1;
 
+  const power = isPowerGoal(profile);
+
   let sets, target, type;
-  if (exercise.static) {
+  if (spec.pattern === 'condition') {
+    // Intervalle: kurz und all-out, die Pause dazwischen ist Teil des Reizes
+    type = 'time';
+    sets = isDeload ? 4 : [5, 6, 7][rangeIdx] || 6;
+    const secs = isDeload ? 20 : [20, 25, 30][rangeIdx] || 25;
+    target = `${secs} Sek. all-out`;
+  } else if (exercise.static) {
     type = 'time';
     sets = 3;
     const times = isDeload ? [25, 25, 25] : [25, 35, 45];
     const secs  = times[rangeIdx] || 30;
     target = unilateral ? `${secs} Sek. pro Seite` : `${secs} Sek.`;
+  } else if (power && (spec.pattern === 'jump' || spec.pattern === 'bound')) {
+    // Sprünge: viele Sätze, wenige Wiederholungen, jede maximal.
+    // Volumen bleibt niedrig, weil der Sand die Beine ohnehin belastet.
+    type = 'reps';
+    sets = isDeload ? 3 : [4, 5, 5][rangeIdx] || 4;
+    const ranges = isDeload ? ['3'] : ['3–4', '4–5', '5–6'];
+    const range  = isDeload ? '3' : ranges[rangeIdx];
+    target = unilateral ? `${range} Sprünge pro Seite` : `${range} Sprünge`;
   } else {
     type = 'reps';
     sets = isDeload ? 3 : (spec.pattern === 'calf' ? 3 : 4);
     let ranges;
-    if (spec.pattern === 'calf') {
+    if (power) {
+      // Schnellkraft: niedrige Wiederholungen mit voller Geschwindigkeit,
+      // bewusst mit Reserve — Ermüdung senkt die Bewegungsgeschwindigkeit.
+      ranges = spec.pattern === 'rotate'
+        ? ['8–10', '10–12', '12–14']
+        : (spec.priority === 'main' ? ['4–6', '5–6', '6–8'] : ['6–8', '6–8', '8–10']);
+    } else if (spec.pattern === 'calf') {
       // Waden vertragen bei Zusatzlast weniger Wdh. als im reinen Körpergewicht
       ranges = weighted ? ['12–15', '14–18', '15–20'] : ['15–20', '18–22', '20–25'];
     } else if (weighted) {
@@ -110,12 +151,18 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     } else {
       ranges = ['6–8', '8–10', '10–12'];
     }
-    const deloadRange = spec.pattern === 'calf' ? '12' : (spec.priority === 'main' ? '8' : '6');
+    const deloadRange = power ? '4' : (spec.pattern === 'calf' ? '12' : (spec.priority === 'main' ? '8' : '6'));
     const range = isDeload ? deloadRange : ranges[rangeIdx];
     target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, weighted, oneDb, isDeload, ladderIdx: idx };
+  return {
+    pattern: spec.pattern, priority: spec.priority,
+    name: exercise.name, hint: exercise.hint, images: exercise.images || [],
+    sets, target, type, unilateral, weighted, oneDb, isDeload,
+    restSec: exercise.restSec || null,
+    ladderIdx: idx
+  };
 }
 
 // Wählt für eine Kollision die nächstgelegene freie Stufe – bevorzugt leichter (runter),

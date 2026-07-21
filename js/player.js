@@ -1,5 +1,5 @@
-import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink, ladderFor } from './planner.js';
-import { PATTERN_LABELS, WARMUP } from './data.js';
+import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink, ladderFor, isPowerGoal } from './planner.js';
+import { PATTERN_LABELS, WARMUP, WARMUP_POWER } from './data.js';
 import {
   loadProfile, saveProfile, appendExLogEntry, loadExLog, loadSettings,
   saveSessionSnapshot, loadSessionSnapshot, clearSessionSnapshot,
@@ -13,8 +13,11 @@ let wakeLock = null;
 
 const PATTERN_DE = {
   push: 'Push', pike: 'Pike', pull: 'Pull',
-  squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core'
+  squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core',
+  jump: 'Sprung', bound: 'Antritt', rotate: 'Rotation', condition: 'Intervall'
 };
+
+const ALL_PATTERNS = ['push','pike','pull','squat','hinge','calf','core','jump','bound','rotate','condition'];
 
 /* ── Audio: geteilter Context, auf erster User-Geste entsperrt (iOS) ── */
 let audioCtx = null;
@@ -230,7 +233,7 @@ function renderPlayer() {
   document.getElementById('pmDay').textContent   = w.isDeload ? 'Deload' : (w.isFinale ? 'Finale' : `Tag ${w.dayIdx + 1}`);
   document.getElementById('pmType').textContent  = session.warmupActive ? 'Warmup' : w.name;
   document.getElementById('pmCount').textContent = session.warmupActive
-    ? `Aufwärmen ${session.warmupIdx + 1} / ${WARMUP.length}`
+    ? `Aufwärmen ${session.warmupIdx + 1} / ${warmupList().length}`
     : `Übung ${session.exIdx + 1} / ${w.exercises.length}`;
   document.getElementById('pmFill').style.width  = `${(session.completedSets / session.totalSets) * 100}%`;
 
@@ -418,9 +421,14 @@ function renderImages(ex) {
 }
 
 /* ── Warmup ── */
+// Athletik-Ziel bekommt ein hüftlastigeres Aufwärmen mit Probesprüngen
+function warmupList() {
+  return isPowerGoal(loadProfile()) ? WARMUP_POWER : WARMUP;
+}
+
 function startWarmupExercise() {
   if (!session) return;
-  const w = WARMUP[session.warmupIdx];
+  const w = warmupList()[session.warmupIdx];
   if (!w) {
     session.warmupActive = false;
     if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
@@ -439,9 +447,10 @@ function startWarmupExercise() {
 }
 
 function renderWarmupInfo() {
-  const w  = WARMUP[session.warmupIdx];
-  const nx = WARMUP[session.warmupIdx + 1];
-  document.getElementById('wuProgress').textContent = `${session.warmupIdx + 1} / ${WARMUP.length}`;
+  const list = warmupList();
+  const w  = list[session.warmupIdx];
+  const nx = list[session.warmupIdx + 1];
+  document.getElementById('wuProgress').textContent = `${session.warmupIdx + 1} / ${list.length}`;
   document.getElementById('wuName').textContent     = w.name;
   document.getElementById('wuHint').textContent     = w.hint;
   document.getElementById('wuNext').innerHTML       = nx ? `Danach: <b>${nx.name}</b>` : `Danach: <b>Workout</b>`;
@@ -466,7 +475,7 @@ function skipWarmup() {
   if (!session) return;
   if (session.warmupTimer) { session.warmupTimer.stop(); session.warmupTimer = null; }
   session.warmupActive = false;
-  session.warmupIdx    = WARMUP.length;
+  session.warmupIdx    = warmupList().length;
   renderPlayer();
 }
 
@@ -535,6 +544,13 @@ function completeSet() {
 
 function restDurationFor(ex) {
   const s = loadSettings();
+  // Intervalle bringen ihre eigene, kurze Pause mit
+  if (ex.restSec) return ex.restSec;
+  // Sprünge brauchen volle Erholung des Nervensystems — sonst sinkt die
+  // Sprunghöhe und der Reiz wird zum Ausdauertraining.
+  if (ex.pattern === 'jump' || ex.pattern === 'bound') {
+    return Math.max(s.restMain, 150);
+  }
   return ex.priority === 'main' ? s.restMain : s.restSecondary;
 }
 
@@ -576,10 +592,12 @@ function evaluateAdaptations(profile, finishedWorkout) {
 
   const exLog    = loadExLog().filter(en => !en.isDeload);
   const patterns = [...new Set(
-    finishedWorkout.exercises.filter(e => e.priority === 'main').map(e => e.pattern)
+    finishedWorkout.exercises
+      .filter(e => e.priority === 'main' && e.pattern !== 'condition')
+      .map(e => e.pattern)
   )];
   const changes  = [];
-  const newAdj   = { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0, ...(profile.levelAdjust || {}) };
+  const newAdj   = { ...Object.fromEntries(ALL_PATTERNS.map(p => [p, 0])), ...(profile.levelAdjust || {}) };
 
   for (const pattern of patterns) {
     const recent = [];

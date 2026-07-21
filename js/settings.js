@@ -1,6 +1,7 @@
-import { loadSettings, saveSettings, exportAllData, importAllData, loadProfile, saveProfile } from './storage.js';
+import { loadSettings, saveSettings, exportAllData, importAllData, loadProfile, saveProfile, clearSessionSnapshot } from './storage.js';
 import { renderLog } from './logbook.js';
 import { renderToday } from './today.js';
+import { renderGoalCopy } from './goal-copy.js';
 
 export function openSettings() {
   const s = loadSettings();
@@ -13,8 +14,22 @@ export function openSettings() {
   dbBox.checked  = !!(profile && profile.dumbbells);
   dbBox.disabled = !profile;
 
+  const goalSel  = document.getElementById('setGoal');
+  const splitSel = document.getElementById('setSplit');
+  goalSel.value  = (profile && profile.goal) || 'hypertrophy';
+  goalSel.disabled  = !profile;
+  splitSel.value = (profile && /^power/.test(profile.split || '')) ? profile.split : 'power2';
+  splitSel.disabled = !profile;
+  syncSplitRow();
+
   document.getElementById('settingsModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+// Die Split-Auswahl ist nur im Athletik-Modus relevant
+function syncSplitRow() {
+  const isPower = document.getElementById('setGoal').value === 'power';
+  document.getElementById('setSplitRow').style.display = isPower ? '' : 'none';
 }
 
 export function closeSettings() {
@@ -28,17 +43,40 @@ function persist() {
     restSecondary: parseInt(document.getElementById('setRestSecondary').value) || 90,
     sound:         document.getElementById('setSound').checked
   });
-  // Ausrüstung gehört zum Profil — der Planner wählt danach die Übungsleiter
+  // Ziel und Ausrüstung gehören zum Profil — danach wählt der Planner die Leitern
   const profile = loadProfile();
-  if (profile) {
-    const wanted = document.getElementById('setDumbbells').checked;
-    if (!!profile.dumbbells !== wanted) {
-      profile.dumbbells  = wanted;
-      // Anpassungen gelten für die alte Übungsauswahl — sauber neu starten
-      profile.levelAdjust = { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0 };
-      saveProfile(profile);
-    }
+  if (!profile) return;
+
+  const wantDb    = document.getElementById('setDumbbells').checked;
+  const wantGoal  = document.getElementById('setGoal').value;
+  const wantSplit = document.getElementById('setSplit').value;
+
+  const goalChanged  = (profile.goal || 'hypertrophy') !== wantGoal;
+  const dbChanged    = !!profile.dumbbells !== wantDb;
+  const splitChanged = wantGoal === 'power' && profile.split !== wantSplit;
+
+  if (!goalChanged && !dbChanged && !splitChanged) return;
+
+  profile.dumbbells = wantDb;
+  profile.goal      = wantGoal;
+
+  if (wantGoal === 'power') {
+    profile.split     = wantSplit;
+    profile.frequency = wantSplit === 'power3' ? 3 : 2;
+  } else if (goalChanged) {
+    // Zurück zum Muskelaufbau: auf den zuletzt genutzten Kraft-Split zurückfallen
+    profile.split     = profile.strengthSplit || '3';
+    profile.frequency = profile.split === '4' ? 4 : 3;
   }
+  if (wantGoal === 'hypertrophy') profile.strengthSplit = profile.split;
+
+  // Anpassungen und angefangene Einheit gelten für die alte Auswahl
+  profile.levelAdjust = {
+    push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0,
+    core: 0, jump: 0, bound: 0, rotate: 0, condition: 0
+  };
+  saveProfile(profile);
+  clearSessionSnapshot();
 }
 
 function doExport() {
@@ -76,10 +114,12 @@ export function setupSettingsHandlers() {
     closeSettings();
     renderLog();
     renderToday();
+    renderGoalCopy();
   });
-  ['setRestMain', 'setRestSecondary', 'setSound', 'setDumbbells'].forEach(id => {
+  ['setRestMain', 'setRestSecondary', 'setSound', 'setDumbbells', 'setGoal', 'setSplit'].forEach(id => {
     document.getElementById(id).addEventListener('change', persist);
   });
+  document.getElementById('setGoal').addEventListener('change', syncSplitRow);
   document.getElementById('btnExport').addEventListener('click', doExport);
   document.getElementById('btnImportFile').addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) doImport(e.target.files[0]);
