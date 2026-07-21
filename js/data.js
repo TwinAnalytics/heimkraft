@@ -246,46 +246,50 @@ export const DAY_TEMPLATES = {
   ],
   // Athletik-Split: Sprungkraft zuerst (mit frischen Beinen), danach Kraftbasis.
   // Bewusst wenig Beinvolumen — der Sand liefert davon schon reichlich.
+  // Jede Einheit paart einen Sprung- oder Schnellkraftreiz mit zwei
+  // Hantelübungen: die Sprünge machen dich schnell, die Hanteln liefern
+  // die Kraft, aus der die Geschwindigkeit überhaupt entstehen kann.
   'power3': [
-    { key: 'pwA', name: 'Sprungkraft', focus: 'Absprung · Oberkörper · Rotation',
+    { key: 'pwA', name: 'Sprungkraft & Druck', focus: 'Absprung · Schulter · Brust',
       ex: [
         { pattern: 'jump',   priority: 'main' },
-        { pattern: 'push',   priority: 'main' },
-        { pattern: 'pull',   priority: 'main' },
-        { pattern: 'rotate', priority: 'main' }
+        { pattern: 'pike',   priority: 'main' },
+        { pattern: 'push',   priority: 'secondary' },
+        { pattern: 'core',   priority: 'main' }
       ]
     },
-    { key: 'pwB', name: 'Rumpf & Hüfte', focus: 'Kraftbasis · Stabilität · Prophylaxe',
+    { key: 'pwB', name: 'Kraftbasis & Rumpf', focus: 'Hüfte · Beine · Rücken · Rotation',
       ex: [
         { pattern: 'hinge',  priority: 'main' },
-        { pattern: 'squat',  priority: 'secondary' },
-        { pattern: 'rotate', priority: 'main' },
-        { pattern: 'core',   priority: 'main' }
+        { pattern: 'squat',  priority: 'main' },
+        { pattern: 'pull',   priority: 'main' },
+        { pattern: 'rotate', priority: 'main' }
       ]
     },
     { key: 'pwC', name: 'Antritt & Ausdauer', focus: 'Richtungswechsel · Wiederholungskraft',
       ex: [
         { pattern: 'bound',     priority: 'main' },
         { pattern: 'condition', priority: 'main' },
+        { pattern: 'rotate',    priority: 'secondary' },
         { pattern: 'core',      priority: 'main' }
       ]
     }
   ],
   // Kompaktvariante für Wochen mit vier Spieleinheiten
   'power2': [
-    { key: 'pwSA', name: 'Sprungkraft', focus: 'Absprung · Oberkörper',
+    { key: 'pwSA', name: 'Sprungkraft & Oberkörper', focus: 'Absprung · Schulter · Rücken',
       ex: [
         { pattern: 'jump',   priority: 'main' },
-        { pattern: 'push',   priority: 'main' },
+        { pattern: 'pike',   priority: 'main' },
         { pattern: 'pull',   priority: 'main' },
         { pattern: 'core',   priority: 'main' }
       ]
     },
-    { key: 'pwSB', name: 'Hüfte & Ausdauer', focus: 'Kraftbasis · Rotation · Wiederholungskraft',
+    { key: 'pwSB', name: 'Kraftbasis & Ausdauer', focus: 'Hüfte · Beine · Wiederholungskraft',
       ex: [
         { pattern: 'hinge',     priority: 'main' },
+        { pattern: 'squat',     priority: 'main' },
         { pattern: 'bound',     priority: 'secondary' },
-        { pattern: 'rotate',    priority: 'main' },
         { pattern: 'condition', priority: 'main' }
       ]
     }
