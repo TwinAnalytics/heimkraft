@@ -1675,6 +1675,70 @@
   .adj-chip.down { color: var(--warn); border-color: rgba(255, 69, 48, 0.4); }
   .adj-chip.up   { color: var(--accent); border-color: rgba(216, 255, 61, 0.4); }
 
+  /* Wizard: Gruppenüberschrift über den Varianten */
+  .wiz-choice-head {
+    font-family: 'JetBrains Mono';
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 18px 0 2px;
+  }
+  .wiz-choice-head:first-child { margin-top: 0; }
+
+  /* Wizard: Ausrüstungs-Auswahl */
+  .wiz-equip {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: 22px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    cursor: pointer;
+  }
+  .wiz-equip input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 28px; height: 28px;
+    flex: 0 0 28px;
+    border: 1px solid var(--ink-dim);
+    background: var(--bg);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .wiz-equip input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .wiz-equip input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-family: 'Antonio';
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .we-text b {
+    display: block;
+    font-family: 'Fraunces';
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .we-text small {
+    display: block;
+    font-family: 'Fraunces';
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+    line-height: 1.4;
+  }
+
   /* Wizard: Empfehlungs-Tag */
   .wc-reco {
     font-family: 'JetBrains Mono';

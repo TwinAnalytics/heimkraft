@@ -256,22 +256,43 @@
       <h2>Trainings-Variante</h2>
       <p class="wiz-sub">Wie oft willst du in den nächsten 12 Wochen trainieren? Sei ehrlich – Konstanz schlägt Ambition. Drei saubere Einheiten sind besser als vier verpasste.</p>
       <div class="wiz-choice" id="freqChoice">
-        <button class="wiz-choice-btn" data-freq="3" data-split="fullbody">
+        <div class="wiz-choice-head">Athletik · für Sportler</div>
+        <button class="wiz-choice-btn" data-freq="2" data-split="power2" data-goal="power">
+          <span class="wc-num">2×</span>
+          <span class="wc-label">Schnellkraft &amp; Definition</span>
+          <span class="wc-desc">Sprungkraft, explosive Kraft und ein definierter Oberkörper. Wenig Beinvolumen – richtig, wenn du daneben 3–4× Sport treibst.</span>
+        </button>
+        <button class="wiz-choice-btn" data-freq="3" data-split="power3" data-goal="power">
           <span class="wc-num">3×</span>
-          <span class="wc-label">Ganzkörper <em class="wc-reco">Empfehlung für Einsteiger</em></span>
+          <span class="wc-label">Schnellkraft &amp; Definition</span>
+          <span class="wc-desc">Gleiche Ausrichtung mit einem zusätzlichen Tag für Rücken, Arme und Ausdauer. Für Wochen mit weniger Sport.</span>
+        </button>
+
+        <div class="wiz-choice-head">Muskelaufbau</div>
+        <button class="wiz-choice-btn" data-freq="3" data-split="fullbody" data-goal="hypertrophy">
+          <span class="wc-num">3×</span>
+          <span class="wc-label">Ganzkörper <em class="wc-reco">Für Einsteiger</em></span>
           <span class="wc-desc">Jede Muskelgruppe 2–3× pro Woche – der stärkste Wachstumsreiz für Anfänger und Wiedereinsteiger.</span>
         </button>
-        <button class="wiz-choice-btn" data-freq="3" data-split="3">
+        <button class="wiz-choice-btn" data-freq="3" data-split="3" data-goal="hypertrophy">
           <span class="wc-num">3×</span>
           <span class="wc-label">Push · Pull · Legs</span>
           <span class="wc-desc">Klassischer Split mit klarem Tages-Fokus. Jede Muskelgruppe 1× pro Woche mit hohem Volumen.</span>
         </button>
-        <button class="wiz-choice-btn" data-freq="4" data-split="4">
+        <button class="wiz-choice-btn" data-freq="4" data-split="4" data-goal="hypertrophy">
           <span class="wc-num">4×</span>
           <span class="wc-label">Upper · Lower</span>
           <span class="wc-desc">Jede Muskelgruppe 2× pro Woche. Optimaler Hypertrophie-Stimulus für Fortgeschrittene.</span>
         </button>
       </div>
+
+      <label class="wiz-equip" for="inDumbbells">
+        <input type="checkbox" id="inDumbbells">
+        <span class="we-text">
+          <b>Ich habe Kurzhanteln</b>
+          <small>Schaltet Floor Press, Rudern, Kreuzheben, Schulterdrücken und Curls frei. Lässt sich jederzeit in den Einstellungen ändern.</small>
+        </span>
+      </label>
     </div>
 
     <!-- STEP 3: STRENGTH TESTS -->

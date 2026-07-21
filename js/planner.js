@@ -14,12 +14,24 @@ export function isPowerGoal(profile) {
 // calf auf die Hantel-Varianten, push und core bleiben Körpergewicht.
 export function ladderFor(pattern, profile) {
   const hasDb = !!(profile && profile.dumbbells);
+
+  let ladder;
   if (isPowerGoal(profile) && PROGRESSIONS_POWER[pattern]) {
-    const ladder = PROGRESSIONS_POWER[pattern].filter(e => hasDb || !e.weighted);
-    return ladder.length ? ladder : PROGRESSIONS_POWER[pattern];
+    ladder = PROGRESSIONS_POWER[pattern];
+  } else if (hasDb && PROGRESSIONS_DB[pattern]) {
+    ladder = PROGRESSIONS_DB[pattern];
+  } else {
+    ladder = PROGRESSIONS[pattern] || PROGRESSIONS_DB[pattern] || PROGRESSIONS_POWER[pattern];
   }
-  if (hasDb && PROGRESSIONS_DB[pattern]) return PROGRESSIONS_DB[pattern];
-  return PROGRESSIONS[pattern] || PROGRESSIONS_POWER[pattern];
+  if (!ladder) return [];
+
+  // Ohne Hanteln fallen beladene Varianten heraus — jede Leiter hält dafür
+  // mindestens eine Körpergewichtsübung bereit.
+  if (!hasDb) {
+    const bodyweight = ladder.filter(e => !e.weighted);
+    if (bodyweight.length) return bodyweight;
+  }
+  return ladder;
 }
 
 export function ytLink(exerciseName) {

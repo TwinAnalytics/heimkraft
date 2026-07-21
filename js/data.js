@@ -60,6 +60,22 @@ export const PROGRESSIONS = {
 // sind diese Leitern kurz. Push und Core bleiben bewusst Körpergewicht:
 // die Liegestütz-Leiter trägt weiter und Planks brauchen keine Hanteln.
 export const PROGRESSIONS_DB = {
+  push: [
+    { name: 'Kurzhantel Floor Press',         hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, kurz halten, dann kraftvoll hoch. Die beste Brustübung ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true },
+    { name: 'Enges Floor Press',              hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true },
+    { name: 'Einarmiges Floor Press',         hint: 'Nur eine Hantel, die freie Hand liegt am Boden. Der Rumpf muss gegen die Drehung arbeiten. Beide Seiten.', images: imgs('Dumbbell_Floor_Press'), weighted: true, unilateral: true, oneDb: true }
+  ],
+  biceps: [
+    { name: 'Bizeps-Curls',                   hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true },
+    { name: 'Hammer-Curls',                   hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true },
+    { name: 'Konzentrations-Curls',           hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Stuhl-Rudern (Untergriff)',      hint: 'Rückenlage unter dem Stuhl, Handflächen zeigen zu dir. Der enge Untergriff holt den Bizeps stark mit rein. Ohne Hanteln die beste Bizepsübung.', images: imgs('Inverted_Row') }
+  ],
+  triceps: [
+    { name: 'Trizeps-Strecken über Kopf',     hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, oneDb: true },
+    { name: 'Trizeps-Kickbacks',              hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Dips am Stuhl',                  hint: 'Hände auf der Stuhlkante hinter dir, Füße nach vorne. Körper absenken bis die Ellbogen 90° erreichen, dann hochdrücken.', images: imgs('Bench_Dips') }
+  ],
   pike: [
     { name: 'Schulterdrücken (sitzend)',      hint: 'Auf dem Stuhl sitzend, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, Ellbogen leicht vor dem Körper. 3 Sek. absenken.', images: imgs('Seated_Dumbbell_Press'),  weighted: true },
     { name: 'Schulterdrücken (stehend)',      hint: 'Im Stand, Bauch fest, Rippen unten – kein Hohlkreuz. Ganzkörperspannung macht die Übung schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
@@ -203,18 +219,20 @@ export const DAY_TEMPLATES = {
   '3': [
     { key: 'push',  name: 'Push',  focus: 'Brust · Schultern · Trizeps',
       ex: [
-        { pattern: 'push',  priority: 'main' },
-        { pattern: 'pike',  priority: 'main' },
-        { pattern: 'push',  priority: 'secondary' },
-        { pattern: 'core',  priority: 'main' }
+        { pattern: 'push',    priority: 'main' },
+        { pattern: 'pike',    priority: 'main' },
+        { pattern: 'push',    priority: 'secondary' },
+        { pattern: 'triceps', priority: 'main' },
+        { pattern: 'core',    priority: 'main' }
       ]
     },
     { key: 'pull',  name: 'Pull',  focus: 'Rücken · Bizeps · hintere Schulter',
       ex: [
-        { pattern: 'pull',  priority: 'main' },
-        { pattern: 'pull',  priority: 'secondary' },
-        { pattern: 'pike',  priority: 'secondary' },
-        { pattern: 'core',  priority: 'main' }
+        { pattern: 'pull',   priority: 'main' },
+        { pattern: 'pull',   priority: 'secondary' },
+        { pattern: 'pike',   priority: 'secondary' },
+        { pattern: 'biceps', priority: 'main' },
+        { pattern: 'core',   priority: 'main' }
       ]
     },
     { key: 'legs',  name: 'Legs',  focus: 'Quads · Glutes · Hamstrings · Waden',
@@ -230,10 +248,11 @@ export const DAY_TEMPLATES = {
   '4': [
     { key: 'upperA', name: 'Upper A', focus: 'Push-Fokus · Brust & Schultern',
       ex: [
-        { pattern: 'push',  priority: 'main' },
-        { pattern: 'pike',  priority: 'main' },
-        { pattern: 'pull',  priority: 'secondary' },
-        { pattern: 'core',  priority: 'main' }
+        { pattern: 'push',    priority: 'main' },
+        { pattern: 'pike',    priority: 'main' },
+        { pattern: 'pull',    priority: 'secondary' },
+        { pattern: 'triceps', priority: 'main' },
+        { pattern: 'core',    priority: 'main' }
       ]
     },
     { key: 'lowerA', name: 'Lower A', focus: 'Quad-Fokus · vordere Kette',
@@ -246,10 +265,11 @@ export const DAY_TEMPLATES = {
     },
     { key: 'upperB', name: 'Upper B', focus: 'Pull-Fokus · Rücken & Bizeps',
       ex: [
-        { pattern: 'pull',  priority: 'main' },
-        { pattern: 'pull',  priority: 'secondary' },
-        { pattern: 'push',  priority: 'secondary' },
-        { pattern: 'core',  priority: 'main' }
+        { pattern: 'pull',   priority: 'main' },
+        { pattern: 'pull',   priority: 'secondary' },
+        { pattern: 'push',   priority: 'secondary' },
+        { pattern: 'biceps', priority: 'main' },
+        { pattern: 'core',   priority: 'main' }
       ]
     },
     { key: 'lowerB', name: 'Lower B', focus: 'Posterior · Hamstring & Glute & Waden',

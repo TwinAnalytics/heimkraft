@@ -6,7 +6,7 @@ import { openPlayer } from './player.js';
 import { getTrainLog } from './logbook.js';
 
 let wizStep = 1;
-const wizData = { weight: null, frequency: null, split: null, push: null, pull: null, squat: null, plank: null };
+const wizData = { weight: null, frequency: null, split: null, goal: null, dumbbells: false, push: null, pull: null, squat: null, plank: null };
 
 export function openWizard() {
   document.getElementById('wizardModal').classList.add('open');
@@ -38,6 +38,7 @@ function readWizStep() {
     wizData.weight = v;
   } else if (wizStep === 2) {
     if (!wizData.split) { alert('Bitte Trainings-Variante wählen.'); return false; }
+    wizData.dumbbells = document.getElementById('inDumbbells').checked;
   } else if (wizStep === 3) {
     wizData.push  = parseInt(document.getElementById('inPush').value)  || 0;
     wizData.pull  = parseInt(document.getElementById('inPull').value)  || 0;
@@ -48,6 +49,8 @@ function readWizStep() {
 }
 
 const SPLIT_LABELS = {
+  'power2':   '2× Schnellkraft & Definition',
+  'power3':   '3× Schnellkraft & Definition',
   'fullbody': '3× Ganzkörper',
   '3':        '3× Push · Pull · Legs',
   '4':        '4× Upper · Lower'
@@ -70,6 +73,7 @@ function renderWizSummary() {
   document.getElementById('wizSummary').innerHTML = `
     <div class="wiz-summary-row"><span>Körpergewicht</span><b>${wizData.weight} kg</b></div>
     <div class="wiz-summary-row"><span>Trainings-Variante</span><b>${SPLIT_LABELS[wizData.split] || wizData.frequency + '× pro Woche'}</b></div>
+    <div class="wiz-summary-row"><span>Ausrüstung</span><b>${wizData.dumbbells ? 'Matte, Stuhl & Kurzhanteln' : 'Matte & Stuhl'}</b></div>
     <div class="wiz-summary-row"><span>Eingestuftes Level</span><b>${levelLabel}</b></div>
     <div class="wiz-summary-row"><span>Start Push</span><b>${startEx.push}</b></div>
     <div class="wiz-summary-row"><span>Start Pull</span><b>${startEx.pull}</b></div>
@@ -88,6 +92,8 @@ function finishWizard() {
     weight:    wizData.weight,
     frequency: wizData.frequency,
     split:     wizData.split,
+    goal:      wizData.goal || 'hypertrophy',
+    dumbbells: !!wizData.dumbbells,
     levels: {
       push:  pushL,
       pike:  pushL,
@@ -98,7 +104,8 @@ function finishWizard() {
       core:  plankL
     },
     tests:        { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
-    levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0 },
+    levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0,
+                    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0 },
     sessionsDone: 0,
     planBaseline: Object.keys(getTrainLog()).length,
     createdAt:    new Date().toISOString()
@@ -129,6 +136,7 @@ export function setupWizardHandlers() {
       btn.classList.add('selected');
       wizData.frequency = parseInt(btn.dataset.freq);
       wizData.split     = btn.dataset.split || String(btn.dataset.freq);
+      wizData.goal      = btn.dataset.goal  || 'hypertrophy';
     });
   });
 }
