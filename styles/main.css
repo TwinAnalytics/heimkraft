@@ -1894,10 +1894,37 @@
     font-size: 0.8rem;
     outline: none;
   }
+  /* Die globale Regel `input { appearance: none }` entfernt auch die native
+     Checkbox-Darstellung — deshalb hier eine eigene, deutlich sichtbare. */
   .set-row input[type="checkbox"] {
-    width: 22px; height: 22px;
-    accent-color: var(--accent);
+    appearance: none;
+    -webkit-appearance: none;
+    width: 28px; height: 28px;
+    flex: 0 0 28px;
+    border: 1px solid var(--ink-dim);
+    background: var(--bg);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s;
   }
+  .set-row input[type="checkbox"]:hover { border-color: var(--accent); }
+  .set-row input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .set-row input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-family: 'Antonio';
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .set-row label { flex: 1 1 auto; }
   .set-hint {
     font-family: 'Fraunces';
     font-style: italic;
