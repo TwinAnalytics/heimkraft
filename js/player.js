@@ -1,8 +1,9 @@
-import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink } from './planner.js';
-import { PATTERN_LABELS, PROGRESSIONS, WARMUP } from './data.js';
+import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink, ladderFor } from './planner.js';
+import { PATTERN_LABELS, WARMUP } from './data.js';
 import {
   loadProfile, saveProfile, appendExLogEntry, loadExLog, loadSettings,
-  saveSessionSnapshot, loadSessionSnapshot, clearSessionSnapshot
+  saveSessionSnapshot, loadSessionSnapshot, clearSessionSnapshot,
+  findLastWeight, suggestedWeight, WEIGHT_STEP
 } from './storage.js';
 import { getTrainLog, logWorkoutToday } from './logbook.js';
 import { renderToday } from './today.js';
@@ -108,7 +109,9 @@ function buildSession(w, restored) {
     restTimer:     null,
     restPhase:     false,
     currentReps:   0,
+    currentKg:     0,
     history:       restored ? restored.history : w.exercises.map(() => []),
+    kgHistory:     restored ? (restored.kgHistory || w.exercises.map(() => [])) : w.exercises.map(() => []),
     swapOffsets:   restored ? (restored.swapOffsets || w.exercises.map(() => 0)) : w.exercises.map(() => 0),
     exTimer:       null,
     exTimerTarget: 0,
@@ -133,6 +136,7 @@ function persistSnapshot() {
     setIdx:        session.setIdx,
     completedSets: session.completedSets,
     history:       session.history,
+    kgHistory:     session.kgHistory,
     swapOffsets:   session.swapOffsets
   });
 }
@@ -189,7 +193,7 @@ export function closePlayer() {
 
 /* ── Übungs-Swap (eine Stufe leichter/schwerer, nur diese Session) ── */
 function ladderIndexOf(ex) {
-  const ladder = PROGRESSIONS[ex.pattern] || [];
+  const ladder = ladderFor(ex.pattern, loadProfile()) || [];
   return ladder.findIndex(l => l.name === ex.name);
 }
 
@@ -281,11 +285,14 @@ function renderPlayer() {
     const btnStop    = document.getElementById('btnTimerStop');
 
     const history     = session.history[session.exIdx];
+    const kgHist      = session.kgHistory[session.exIdx];
     const targetVal   = parseTargetDefault(ex.target);
     const defaultReps = isTime
       ? targetVal
       : (history.length > 0 ? history[history.length - 1] : targetVal);
     session.currentReps = defaultReps;
+
+    renderWeightControl(ex, kgHist);
 
     if (session.exTimer) { session.exTimer.stop(); session.exTimer = null; }
     session.exTimerRunning = false;
@@ -321,9 +328,13 @@ function renderPlayer() {
     // Heute schon absolvierte Sätze
     const histEl = document.getElementById('exHistory');
     const unit   = isTime ? 's' : '';
+    const fmt    = (r, i, kgArr) => {
+      const kg = kgArr && kgArr[i] ? ` <span class="hist-kg">×${kgArr[i]}kg</span>` : '';
+      return `<b>${r}${unit}</b>${kg}`;
+    };
     let histHtml = '';
     if (history.length > 0) {
-      histHtml = 'Heute: ' + history.map(r => `<b>${r}${unit}</b>`).join(' · ');
+      histHtml = 'Heute: ' + history.map((r, i) => fmt(r, i, kgHist)).join(' · ');
     }
     // Letzte Session mit derselben Übung
     const last = findLastPerformance(ex.name);
@@ -331,7 +342,7 @@ function renderPlayer() {
       const d = new Date(last.date + 'T12:00:00');
       histHtml += (histHtml ? '<br>' : '') +
         `Letztes Mal (${d.getDate()}.${d.getMonth() + 1}.): ` +
-        last.sets.map(r => `<b>${r}${unit}</b>`).join(' · ');
+        last.sets.map((r, i) => fmt(r, i, last.weights)).join(' · ');
     }
     histEl.innerHTML = histHtml;
   }
@@ -341,9 +352,38 @@ function findLastPerformance(exName) {
   const exLog = loadExLog();
   for (let i = exLog.length - 1; i >= 0; i--) {
     const found = exLog[i].exercises.find(e => e.name === exName && e.sets && e.sets.length);
-    if (found) return { date: exLog[i].date, sets: found.sets };
+    if (found) return { date: exLog[i].date, sets: found.sets, weights: found.weights || [] };
   }
   return null;
+}
+
+// Gewichts-Eingabe für Hantelübungen: Vorschlag = zuletzt benutzt, bei erreichter
+// oberer Wdh.-Grenze automatisch eine Stufe höher (Doppelprogression).
+function renderWeightControl(ex, kgHist) {
+  const ctrl = document.getElementById('weightControl');
+  const hint = document.getElementById('weightHint');
+  if (!ctrl) return;
+  if (!ex.weighted) {
+    ctrl.classList.add('hidden');
+    session.currentKg = 0;
+    return;
+  }
+  ctrl.classList.remove('hidden');
+
+  let kg, note = '';
+  if (kgHist && kgHist.length > 0) {
+    kg = kgHist[kgHist.length - 1];               // innerhalb der Session beibehalten
+  } else {
+    const sug = suggestedWeight(ex.name, 6);
+    kg = sug.kg;
+    if (sug.raised) note = `Letztes Mal alle Sätze am oberen Ende — hoch von ${sug.from} auf ${sug.kg} kg.`;
+    else if (findLastWeight(ex.name)) note = `Zuletzt mit ${kg} kg trainiert.`;
+    else note = 'Startgewicht schätzen: die letzten 2 Wdh. sollen hart sein.';
+  }
+  session.currentKg = kg;
+  document.getElementById('kgValue').textContent = kg;
+  document.getElementById('kgUnitLabel').textContent = ex.oneDb ? 'kg (eine Hantel)' : 'kg (pro Hantel)';
+  if (hint) hint.textContent = note;
 }
 
 function renderSwapButtons(ex) {
@@ -351,7 +391,7 @@ function renderSwapButtons(ex) {
   if (!wrap) return;
   const canSwap = session.setIdx === 0;
   const idx     = ladderIndexOf(ex);
-  const ladder  = PROGRESSIONS[ex.pattern] || [];
+  const ladder  = ladderFor(ex.pattern, loadProfile()) || [];
   const btnE = document.getElementById('btnEasier');
   const btnH = document.getElementById('btnHarder');
   btnE.classList.toggle('hidden', !canSwap || idx <= 0);
@@ -476,6 +516,7 @@ function updateTimerClock(remain) {
 function completeSet() {
   const ex = session.workout.exercises[session.exIdx];
   session.history[session.exIdx].push(session.currentReps);
+  session.kgHistory[session.exIdx].push(ex.weighted ? session.currentKg : 0);
   session.setIdx++;
   session.completedSets++;
   persistSnapshot();
@@ -549,6 +590,9 @@ function evaluateAdaptations(profile, finishedWorkout) {
     if (recent.length < 2) continue;
     if (recent[0].name !== recent[1].name) continue;       // Anti-Yoyo nach Anpassung
     if (recent[0].type !== recent[1].type) continue;
+    // Hantelübungen regeln sich über das Gewicht (Doppelprogression),
+    // nicht über einen Wechsel der Übungsvariante.
+    if (recent[0].weighted) continue;
 
     const isTime = recent[0].type === 'time';
     let dir = null;
@@ -597,7 +641,9 @@ function finishWorkout() {
       target:   ex.target,
       lower:    range.lower,
       upper:    range.upper,
-      sets:     session.history[i] || []
+      weighted: !!ex.weighted,
+      sets:     session.history[i] || [],
+      weights:  session.kgHistory[i] || []
     };
   });
   appendExLogEntry({
@@ -635,8 +681,26 @@ function finishWorkout() {
   document.getElementById('dsWeek').textContent      = w.week;
   document.getElementById('pmFill').style.width      = '100%';
 
-  renderAdaptations(adaptChanges);
+  renderAdaptations(adaptChanges.concat(weightProgressions(w)));
   renderToday();
+}
+
+// Doppelprogression sichtbar machen: Übungen, bei denen heute alle Sätze am oberen
+// Ende lagen, werden beim nächsten Mal automatisch schwerer vorgeschlagen.
+function weightProgressions(w) {
+  const out = [];
+  w.exercises.forEach((ex, i) => {
+    if (!ex.weighted) return;
+    const reps = session.history[i] || [];
+    const kgs  = (session.kgHistory[i] || []).filter(k => k > 0);
+    if (reps.length === 0 || kgs.length === 0) return;
+    const { upper } = parseTargetRange(ex.target);
+    if (upper > 0 && reps.every(r => r >= upper)) {
+      const from = Math.max(...kgs);
+      out.push({ kind: 'weight', exName: ex.name, from, to: from + WEIGHT_STEP });
+    }
+  });
+  return out;
 }
 
 function renderAdaptations(changes) {
@@ -652,6 +716,11 @@ function renderAdaptations(changes) {
   list.innerHTML = '';
   for (const c of changes) {
     const li = document.createElement('li');
+    if (c.kind === 'weight') {
+      li.innerHTML = `<span class="adapt-arrow up">↑</span><span class="adapt-pat">Gewicht</span> <b>${c.exName}</b>: alle Sätze am oberen Ende — nächstes Mal ${c.from} → <b>${c.to} kg</b>`;
+      list.appendChild(li);
+      continue;
+    }
     const arrow = c.dir === 'down' ? '↓' : '↑';
     const reason = c.dir === 'down'
       ? `<b>${c.exName}</b> war zu schwer — nächste Einheit eine Stufe leichter`
@@ -690,6 +759,13 @@ export function setupPlayerHandlers() {
   document.getElementById('repMinus').addEventListener('click', () => session && setReps(session.currentReps - 1));
   document.getElementById('repPlus5').addEventListener('click', () => session && setReps(session.currentReps + 5));
   document.getElementById('repMinus5').addEventListener('click',() => session && setReps(session.currentReps - 5));
+
+  const setKg = v => {
+    session.currentKg = Math.max(0, Math.round(v * 2) / 2);   // 0,5-kg-Schritte erlaubt
+    document.getElementById('kgValue').textContent = session.currentKg;
+  };
+  document.getElementById('kgPlus').addEventListener('click',  () => session && setKg(session.currentKg + WEIGHT_STEP));
+  document.getElementById('kgMinus').addEventListener('click', () => session && setKg(session.currentKg - WEIGHT_STEP));
 
   document.getElementById('btnSkipRest').addEventListener('click', () => {
     if (session.restTimer) { session.restTimer.stop(); session.restTimer = null; }

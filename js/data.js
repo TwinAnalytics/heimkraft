@@ -55,6 +55,40 @@ export const PROGRESSIONS = {
   ]
 };
 
+// Hantel-Progressionen. Anders als beim Körpergewicht steigerst du hier primär
+// über das Gewicht (Doppelprogression), nicht über härtere Varianten — deshalb
+// sind diese Leitern kurz. Push und Core bleiben bewusst Körpergewicht:
+// die Liegestütz-Leiter trägt weiter und Planks brauchen keine Hanteln.
+export const PROGRESSIONS_DB = {
+  pike: [
+    { name: 'Schulterdrücken (sitzend)',      hint: 'Auf dem Stuhl sitzend, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, Ellbogen leicht vor dem Körper. 3 Sek. absenken.', images: imgs('Seated_Dumbbell_Press'),  weighted: true },
+    { name: 'Schulterdrücken (stehend)',      hint: 'Im Stand, Bauch fest, Rippen unten – kein Hohlkreuz. Ganzkörperspannung macht die Übung schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
+    { name: 'Arnold Press',                   hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Volle Rotation für die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'),  weighted: true }
+  ],
+  pull: [
+    { name: 'Einarmiges Kurzhantel-Rudern',   hint: 'Eine Hand und ein Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'),      weighted: true, unilateral: true, oneDb: true },
+    { name: 'Vorgebeugtes Rudern (beidarmig)',hint: 'Hüfte nach hinten, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln gleichzeitig zur Hüfte ziehen.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
+    { name: 'Rudern mit Pause',               hint: 'Vorgebeugtes Rudern, oben 2 Sek. halten und Schulterblätter maximal zusammenziehen, dann 3 Sek. absenken.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true }
+  ],
+  squat: [
+    { name: 'Goblet Squat',                   hint: 'Eine Hantel senkrecht vor der Brust halten, Ellbogen nach unten. Tief in die Hocke, Brust bleibt aufrecht.', images: imgs('Goblet_Squat'),               weighted: true, oneDb: true },
+    { name: 'Ausfallschritte mit Hanteln',    hint: 'Hanteln seitlich hängen lassen. Großer Schritt nach vorne, hinteres Knie fast zum Boden. Beide Seiten.', images: imgs('Dumbbell_Lunges'),            weighted: true, unilateral: true },
+    { name: 'Bulgarische Splitkniebeuge',     hint: 'Hinterer Fuß auf dem Stuhl, Hanteln seitlich. Vorderes Bein macht die Arbeit. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, unilateral: true }
+  ],
+  hinge: [
+    { name: 'Rumänisches Kreuzheben',         hint: 'Knie leicht gebeugt und fixiert. Hüfte weit nach hinten schieben, Hanteln dicht am Bein entlang. Nur so tief, wie der Rücken gerade bleibt.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
+    { name: 'RDL mit Pause',                  hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten. Maximaler Hamstring-Reiz.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
+    { name: 'Einbeiniges RDL',                hint: 'Auf einem Bein, anderes streckt nach hinten. Hantel in der Gegenhand. Hüfte gerade halten, nicht öffnen. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, unilateral: true, oneDb: true }
+  ],
+  calf: [
+    { name: 'Wadenheben mit Hanteln',         hint: 'Hanteln seitlich, Fußballen auf der Mattenkante. Maximal hoch, 2 Sek. halten, 3 Sek. tief absenken.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true },
+    { name: 'Einbeiniges Wadenheben',         hint: 'Eine Hantel in der Hand, einbeinig. Volle Streckung oben. Beide Seiten.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, unilateral: true, oneDb: true }
+  ]
+};
+
+// Muster, die bei aktiven Hanteln auf die Hantel-Leiter wechseln.
+export const DB_PATTERNS = Object.keys(PROGRESSIONS_DB);
+
 export const PATTERN_LABELS = {
   push:  'PUSH · HORIZONTAL',
   pike:  'PUSH · VERTIKAL',

@@ -1,4 +1,11 @@
-import { PROGRESSIONS, DAY_TEMPLATES } from './data.js';
+import { PROGRESSIONS, PROGRESSIONS_DB, DAY_TEMPLATES } from './data.js';
+
+// Welche Übungsleiter gilt für dieses Muster? Mit Hanteln wechseln pull/squat/
+// hinge/pike/calf auf die Hantel-Varianten; push und core bleiben Körpergewicht.
+export function ladderFor(pattern, profile) {
+  if (profile && profile.dumbbells && PROGRESSIONS_DB[pattern]) return PROGRESSIONS_DB[pattern];
+  return PROGRESSIONS[pattern];
+}
 
 export function ytLink(exerciseName) {
   const q = encodeURIComponent(exerciseName + ' richtig ausführen Anleitung');
@@ -51,11 +58,14 @@ export function isDeloadWeek(week) {
 }
 
 // Löst die Leiter-Stufe für eine Übung auf (vor dem Klemmen, inkl. Secondary-Abschlag).
+// Bei Hantelübungen zählt die Krafteinstufung aus dem Wizard nicht — dort steuert
+// das Gewicht die Last, deshalb startet jeder auf der Basis-Variante.
 export function resolveLadderIndex(spec, profile, week) {
   const phase   = Math.ceil(week / 4);
-  const ladder  = PROGRESSIONS[spec.pattern];
-  const baseIdx = profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1);
+  const ladder  = ladderFor(spec.pattern, profile);
   const adjust  = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
+  const weighted = !!(profile && profile.dumbbells && PROGRESSIONS_DB[spec.pattern]);
+  const baseIdx = weighted ? 0 : (profile.levels[spec.pattern] ?? (spec.pattern === 'calf' ? 0 : 1));
   let idx = baseIdx + (phase - 1) + adjust;
   if (spec.priority === 'secondary') idx -= 1;
   return Math.max(0, Math.min(idx, ladder.length - 1));
@@ -66,13 +76,15 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   const weekInPhase = ((week - 1) % 4) + 1;
   const isDeload    = isDeloadWeek(week);
 
-  const ladder  = PROGRESSIONS[spec.pattern];
+  const ladder  = ladderFor(spec.pattern, profile);
   const idx = indexOverride !== null
     ? Math.max(0, Math.min(indexOverride, ladder.length - 1))
     : resolveLadderIndex(spec, profile, week);
   const exercise = ladder[idx];
 
   const unilateral = !!exercise.unilateral;
+  const weighted   = !!exercise.weighted;
+  const oneDb      = !!exercise.oneDb;
   // W12 (weekInPhase 4 in Phase 3) trainiert auf Woche-3-Niveau weiter
   const rangeIdx = Math.min(weekInPhase, 3) - 1;
 
@@ -88,7 +100,11 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     sets = isDeload ? 3 : (spec.pattern === 'calf' ? 3 : 4);
     let ranges;
     if (spec.pattern === 'calf') {
-      ranges = ['15–20', '18–22', '20–25'];
+      // Waden vertragen bei Zusatzlast weniger Wdh. als im reinen Körpergewicht
+      ranges = weighted ? ['12–15', '14–18', '15–20'] : ['15–20', '18–22', '20–25'];
+    } else if (weighted) {
+      // Doppelprogression: Wdh.-Fenster bleibt schmal, gesteigert wird über kg
+      ranges = spec.priority === 'main' ? ['8–10', '9–11', '10–12'] : ['10–12', '11–13', '12–15'];
     } else if (spec.priority === 'main') {
       ranges = ['8–10', '10–12', '12–15'];
     } else {
@@ -99,7 +115,7 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
   }
 
-  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, isDeload, ladderIdx: idx };
+  return { pattern: spec.pattern, priority: spec.priority, name: exercise.name, hint: exercise.hint, images: exercise.images || [], sets, target, type, unilateral, weighted, oneDb, isDeload, ladderIdx: idx };
 }
 
 // Wählt für eine Kollision die nächstgelegene freie Stufe – bevorzugt leichter (runter),
@@ -123,7 +139,7 @@ export function generateWorkout(dayIdx, week, profile) {
     const ex   = generateExercise(spec, profile, week);
     const used = usedByPattern[spec.pattern] || (usedByPattern[spec.pattern] = new Set());
     let idx = ex.ladderIdx;
-    if (used.has(idx)) idx = pickDistinctIndex(idx, used, PROGRESSIONS[spec.pattern].length);
+    if (used.has(idx)) idx = pickDistinctIndex(idx, used, ladderFor(spec.pattern, profile).length);
     used.add(idx);
     return idx === ex.ladderIdx ? ex : generateExercise(spec, profile, week, idx);
   });

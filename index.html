@@ -398,6 +398,19 @@
       </div>
       <a class="player-video" id="exVideo" href="#" target="_blank" rel="noopener noreferrer">Anleitung auf YouTube ↗</a>
 
+      <!-- WEIGHT control (Hantelübungen) -->
+      <div class="player-weight hidden" id="weightControl">
+        <div class="weight-ctrl-row">
+          <button id="kgMinus" type="button" aria-label="Weniger Gewicht">−</button>
+          <div class="kg-display">
+            <span class="kg-value" id="kgValue">0</span>
+            <span class="kg-unit" id="kgUnitLabel">kg (pro Hantel)</span>
+          </div>
+          <button id="kgPlus" type="button" aria-label="Mehr Gewicht">+</button>
+        </div>
+        <p class="weight-hint" id="weightHint"></p>
+      </div>
+
       <!-- REP-based control -->
       <div class="player-actual" id="repControl">
         <span class="player-actual-label" id="repLabel">Geschafft</span>
@@ -483,6 +496,14 @@
     <button class="modal-close" id="settingsClose" aria-label="Schließen">×</button>
   </div>
   <div class="modal-body">
+    <div class="set-group">
+      <h3>Ausrüstung</h3>
+      <p class="set-hint">Mit Kurzhanteln wechseln Rücken, Beine, Po und Schultern auf beladbare Übungen. Liegestütze und Core bleiben Körpergewicht.</p>
+      <div class="set-row">
+        <label for="setDumbbells">Kurzhanteln verfügbar<small>Rudern, Kreuzheben, Goblet Squats & Schulterdrücken freischalten</small></label>
+        <input type="checkbox" id="setDumbbells">
+      </div>
+    </div>
     <div class="set-group">
       <h3>Pausen zwischen Sätzen</h3>
       <div class="set-row">

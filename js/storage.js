@@ -57,6 +57,33 @@ export function clearExLog() {
   try { localStorage.removeItem(EXLOG_KEY); } catch(e) {}
 }
 
+// Kleinste sinnvolle Laststeigerung der verstellbaren Hanteln
+export const WEIGHT_STEP = 2;
+
+// Letztes benutztes Gewicht für eine Übung (aus dem Übungs-Log)
+export function findLastWeight(exName) {
+  const log = loadExLog();
+  for (let i = log.length - 1; i >= 0; i--) {
+    const ex = log[i].exercises.find(e => e.name === exName && e.weights && e.weights.length);
+    if (ex) {
+      const valid = ex.weights.filter(w => w > 0);
+      if (valid.length) return { kg: Math.max(...valid), sets: ex.sets, date: log[i].date, lower: ex.lower, upper: ex.upper };
+    }
+  }
+  return null;
+}
+
+// Doppelprogression: obere Wdh.-Grenze in allen Sätzen erreicht → nächstes Mal schwerer.
+export function suggestedWeight(exName, fallbackKg = 6) {
+  const last = findLastWeight(exName);
+  if (!last) return { kg: fallbackKg, raised: false };
+  const hitTop = last.sets && last.sets.length > 0 &&
+                 last.upper > 0 && last.sets.every(r => r >= last.upper);
+  return hitTop
+    ? { kg: last.kg + WEIGHT_STEP, raised: true, from: last.kg }
+    : { kg: last.kg, raised: false };
+}
+
 const DEFAULT_SETTINGS = { restMain: 120, restSecondary: 90, sound: true };
 
 export function loadSettings() {

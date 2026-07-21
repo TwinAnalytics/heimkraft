@@ -1,4 +1,4 @@
-import { loadSettings, saveSettings, exportAllData, importAllData } from './storage.js';
+import { loadSettings, saveSettings, exportAllData, importAllData, loadProfile, saveProfile } from './storage.js';
 import { renderLog } from './logbook.js';
 import { renderToday } from './today.js';
 
@@ -7,6 +7,12 @@ export function openSettings() {
   document.getElementById('setRestMain').value      = String(s.restMain);
   document.getElementById('setRestSecondary').value = String(s.restSecondary);
   document.getElementById('setSound').checked       = !!s.sound;
+
+  const profile = loadProfile();
+  const dbBox = document.getElementById('setDumbbells');
+  dbBox.checked  = !!(profile && profile.dumbbells);
+  dbBox.disabled = !profile;
+
   document.getElementById('settingsModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -22,6 +28,17 @@ function persist() {
     restSecondary: parseInt(document.getElementById('setRestSecondary').value) || 90,
     sound:         document.getElementById('setSound').checked
   });
+  // Ausrüstung gehört zum Profil — der Planner wählt danach die Übungsleiter
+  const profile = loadProfile();
+  if (profile) {
+    const wanted = document.getElementById('setDumbbells').checked;
+    if (!!profile.dumbbells !== wanted) {
+      profile.dumbbells  = wanted;
+      // Anpassungen gelten für die alte Übungsauswahl — sauber neu starten
+      profile.levelAdjust = { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0 };
+      saveProfile(profile);
+    }
+  }
 }
 
 function doExport() {
@@ -60,7 +77,7 @@ export function setupSettingsHandlers() {
     renderLog();
     renderToday();
   });
-  ['setRestMain', 'setRestSecondary', 'setSound'].forEach(id => {
+  ['setRestMain', 'setRestSecondary', 'setSound', 'setDumbbells'].forEach(id => {
     document.getElementById(id).addEventListener('change', persist);
   });
   document.getElementById('btnExport').addEventListener('click', doExport);
