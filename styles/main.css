@@ -1675,6 +1675,16 @@
   .adj-chip.down { color: var(--warn); border-color: rgba(255, 69, 48, 0.4); }
   .adj-chip.up   { color: var(--accent); border-color: rgba(216, 255, 61, 0.4); }
 
+  /* Plan-Überblick: Startgewicht-Hinweis */
+  .pd-kg {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
   /* Wizard: Gruppenüberschrift über den Varianten */
   .wiz-choice-head {
     font-family: 'JetBrains Mono';

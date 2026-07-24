@@ -82,7 +82,7 @@ function renderPlan() {
         <div class="pd-tag">Tag ${dayIdx + 1}</div>
         <h4>${w.name}</h4>
         <ul>
-          ${w.exercises.map(ex => `<li><span>${ex.name}</span><b>${ex.sets}×${ex.target}</b></li>`).join('')}
+          ${w.exercises.map(ex => `<li><span>${ex.name}${ex.weighted && ex.startKg ? ` <em class="pd-kg">ab ${ex.startKg} kg${ex.oneDb ? '' : '/Hantel'}</em>` : ''}</span><b>${ex.sets}×${ex.target}</b></li>`).join('')}
         </ul>
       `;
       bodyEl.appendChild(card);

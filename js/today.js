@@ -1,6 +1,13 @@
 import { todaysWorkout, planProgress } from './planner.js';
-import { loadProfile } from './storage.js';
+import { loadProfile, suggestedWeight } from './storage.js';
 import { getTrainLog } from './logbook.js';
+
+// Empfohlenes bzw. zuletzt genutztes Gewicht für eine Hantelübung
+function weightHint(ex) {
+  if (!ex.weighted) return '';
+  const s = suggestedWeight(ex.name, ex.startKg || 6);
+  return ` · ${s.kg} kg${ex.oneDb ? '' : '/Hantel'}`;
+}
 
 const PATTERN_DE = {
   push: 'Push', pike: 'Pike', pull: 'Pull',
@@ -53,7 +60,7 @@ export function renderToday() {
   if (!complete) {
     w.exercises.forEach(ex => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${ex.name}</span><span class="tp-sets">${ex.sets} × ${ex.target}</span>`;
+      li.innerHTML = `<span>${ex.name}</span><span class="tp-sets">${ex.sets} × ${ex.target}${weightHint(ex)}</span>`;
       list.appendChild(li);
     });
   } else {

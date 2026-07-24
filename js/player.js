@@ -374,15 +374,16 @@ function renderWeightControl(ex, kgHist) {
   }
   ctrl.classList.remove('hidden');
 
+  const perLabel = ex.oneDb ? '' : ' pro Hantel';
   let kg, note = '';
   if (kgHist && kgHist.length > 0) {
     kg = kgHist[kgHist.length - 1];               // innerhalb der Session beibehalten
   } else {
-    const sug = suggestedWeight(ex.name, 6);
+    const sug = suggestedWeight(ex.name, ex.startKg || 6);
     kg = sug.kg;
-    if (sug.raised) note = `Letztes Mal alle Sätze am oberen Ende — hoch von ${sug.from} auf ${sug.kg} kg.`;
-    else if (findLastWeight(ex.name)) note = `Zuletzt mit ${kg} kg trainiert.`;
-    else note = 'Startgewicht schätzen: die letzten 2 Wdh. sollen hart sein.';
+    if (sug.raised) note = `Geschafft! Alle Sätze am oberen Ende — hoch von ${sug.from} auf ${sug.kg} kg${perLabel}.`;
+    else if (findLastWeight(ex.name)) note = `Wie letztes Mal: ${kg} kg${perLabel}. Am oberen Ende der Wdh.? Dann nächstes Mal +2 kg.`;
+    else note = `Startvorschlag: ${kg} kg${perLabel}. Passe an, dass die letzten 2 Wdh. hart sind — ab dann steigert die App automatisch.`;
   }
   session.currentKg = kg;
   document.getElementById('kgValue').textContent = kg;

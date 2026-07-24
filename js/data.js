@@ -61,44 +61,44 @@ export const PROGRESSIONS = {
 // die Liegestütz-Leiter trägt weiter und Planks brauchen keine Hanteln.
 export const PROGRESSIONS_DB = {
   push: [
-    { name: 'Kurzhantel Floor Press',         hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, kurz halten, dann kraftvoll hoch. Die beste Brustübung ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true },
-    { name: 'Enges Floor Press',              hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true },
-    { name: 'Einarmiges Floor Press',         hint: 'Nur eine Hantel, die freie Hand liegt am Boden. Der Rumpf muss gegen die Drehung arbeiten. Beide Seiten.', images: imgs('Dumbbell_Floor_Press'), weighted: true, unilateral: true, oneDb: true }
+    { name: 'Kurzhantel Floor Press',         hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, kurz halten, dann kraftvoll hoch. Die beste Brustübung ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true, startKg: 10 },
+    { name: 'Enges Floor Press',              hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true, startKg: 8 },
+    { name: 'Einarmiges Floor Press',         hint: 'Nur eine Hantel, die freie Hand liegt am Boden. Der Rumpf muss gegen die Drehung arbeiten. Beide Seiten.', images: imgs('Dumbbell_Floor_Press'), weighted: true, startKg: 10, unilateral: true, oneDb: true }
   ],
   biceps: [
-    { name: 'Bizeps-Curls',                   hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true },
-    { name: 'Hammer-Curls',                   hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true },
-    { name: 'Konzentrations-Curls',           hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Bizeps-Curls',                   hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true, startKg: 8 },
+    { name: 'Hammer-Curls',                   hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true, startKg: 8 },
+    { name: 'Konzentrations-Curls',           hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, startKg: 6, unilateral: true, oneDb: true },
     { name: 'Stuhl-Rudern (Untergriff)',      hint: 'Rückenlage unter dem Stuhl, Handflächen zeigen zu dir. Der enge Untergriff holt den Bizeps stark mit rein. Ohne Hanteln die beste Bizepsübung.', images: imgs('Inverted_Row') }
   ],
   triceps: [
-    { name: 'Trizeps-Strecken über Kopf',     hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, oneDb: true },
-    { name: 'Trizeps-Kickbacks',              hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Trizeps-Strecken über Kopf',     hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, startKg: 8, oneDb: true },
+    { name: 'Trizeps-Kickbacks',              hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, startKg: 5, unilateral: true, oneDb: true },
     { name: 'Dips am Stuhl',                  hint: 'Hände auf der Stuhlkante hinter dir, Füße nach vorne. Körper absenken bis die Ellbogen 90° erreichen, dann hochdrücken.', images: imgs('Bench_Dips') }
   ],
   pike: [
-    { name: 'Schulterdrücken (sitzend)',      hint: 'Auf dem Stuhl sitzend, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, Ellbogen leicht vor dem Körper. 3 Sek. absenken.', images: imgs('Seated_Dumbbell_Press'),  weighted: true },
-    { name: 'Schulterdrücken (stehend)',      hint: 'Im Stand, Bauch fest, Rippen unten – kein Hohlkreuz. Ganzkörperspannung macht die Übung schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
-    { name: 'Arnold Press',                   hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Volle Rotation für die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'),  weighted: true }
+    { name: 'Schulterdrücken (sitzend)',      hint: 'Auf dem Stuhl sitzend, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, Ellbogen leicht vor dem Körper. 3 Sek. absenken.', images: imgs('Seated_Dumbbell_Press'),  weighted: true, startKg: 8 },
+    { name: 'Schulterdrücken (stehend)',      hint: 'Im Stand, Bauch fest, Rippen unten – kein Hohlkreuz. Ganzkörperspannung macht die Übung schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true, startKg: 8 },
+    { name: 'Arnold Press',                   hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Volle Rotation für die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'),  weighted: true, startKg: 6 }
   ],
   pull: [
-    { name: 'Einarmiges Kurzhantel-Rudern',   hint: 'Eine Hand und ein Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'),      weighted: true, unilateral: true, oneDb: true },
-    { name: 'Vorgebeugtes Rudern (beidarmig)',hint: 'Hüfte nach hinten, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln gleichzeitig zur Hüfte ziehen.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
-    { name: 'Rudern mit Pause',               hint: 'Vorgebeugtes Rudern, oben 2 Sek. halten und Schulterblätter maximal zusammenziehen, dann 3 Sek. absenken.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true }
+    { name: 'Einarmiges Kurzhantel-Rudern',   hint: 'Eine Hand und ein Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'),      weighted: true, startKg: 12, unilateral: true, oneDb: true },
+    { name: 'Vorgebeugtes Rudern (beidarmig)',hint: 'Hüfte nach hinten, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln gleichzeitig zur Hüfte ziehen.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true, startKg: 10 },
+    { name: 'Rudern mit Pause',               hint: 'Vorgebeugtes Rudern, oben 2 Sek. halten und Schulterblätter maximal zusammenziehen, dann 3 Sek. absenken.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true, startKg: 10 }
   ],
   squat: [
-    { name: 'Goblet Squat',                   hint: 'Eine Hantel senkrecht vor der Brust halten, Ellbogen nach unten. Tief in die Hocke, Brust bleibt aufrecht.', images: imgs('Goblet_Squat'),               weighted: true, oneDb: true },
-    { name: 'Ausfallschritte mit Hanteln',    hint: 'Hanteln seitlich hängen lassen. Großer Schritt nach vorne, hinteres Knie fast zum Boden. Beide Seiten.', images: imgs('Dumbbell_Lunges'),            weighted: true, unilateral: true },
-    { name: 'Bulgarische Splitkniebeuge',     hint: 'Hinterer Fuß auf dem Stuhl, Hanteln seitlich. Vorderes Bein macht die Arbeit. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, unilateral: true }
+    { name: 'Goblet Squat',                   hint: 'Eine Hantel senkrecht vor der Brust halten, Ellbogen nach unten. Tief in die Hocke, Brust bleibt aufrecht.', images: imgs('Goblet_Squat'),               weighted: true, startKg: 14, oneDb: true },
+    { name: 'Ausfallschritte mit Hanteln',    hint: 'Hanteln seitlich hängen lassen. Großer Schritt nach vorne, hinteres Knie fast zum Boden. Beide Seiten.', images: imgs('Dumbbell_Lunges'),            weighted: true, startKg: 8, unilateral: true },
+    { name: 'Bulgarische Splitkniebeuge',     hint: 'Hinterer Fuß auf dem Stuhl, Hanteln seitlich. Vorderes Bein macht die Arbeit. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, startKg: 8, unilateral: true }
   ],
   hinge: [
-    { name: 'Rumänisches Kreuzheben',         hint: 'Knie leicht gebeugt und fixiert. Hüfte weit nach hinten schieben, Hanteln dicht am Bein entlang. Nur so tief, wie der Rücken gerade bleibt.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
-    { name: 'RDL mit Pause',                  hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten. Maximaler Hamstring-Reiz.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
-    { name: 'Einbeiniges RDL',                hint: 'Auf einem Bein, anderes streckt nach hinten. Hantel in der Gegenhand. Hüfte gerade halten, nicht öffnen. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, unilateral: true, oneDb: true }
+    { name: 'Rumänisches Kreuzheben',         hint: 'Knie leicht gebeugt und fixiert. Hüfte weit nach hinten schieben, Hanteln dicht am Bein entlang. Nur so tief, wie der Rücken gerade bleibt.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 12 },
+    { name: 'RDL mit Pause',                  hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten. Maximaler Hamstring-Reiz.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 12 },
+    { name: 'Einbeiniges RDL',                hint: 'Auf einem Bein, anderes streckt nach hinten. Hantel in der Gegenhand. Hüfte gerade halten, nicht öffnen. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 8, unilateral: true, oneDb: true }
   ],
   calf: [
-    { name: 'Wadenheben mit Hanteln',         hint: 'Hanteln seitlich, Fußballen auf der Mattenkante. Maximal hoch, 2 Sek. halten, 3 Sek. tief absenken.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true },
-    { name: 'Einbeiniges Wadenheben',         hint: 'Eine Hantel in der Hand, einbeinig. Volle Streckung oben. Beide Seiten.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, unilateral: true, oneDb: true }
+    { name: 'Wadenheben mit Hanteln',         hint: 'Hanteln seitlich, Fußballen auf der Mattenkante. Maximal hoch, 2 Sek. halten, 3 Sek. tief absenken.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, startKg: 12 },
+    { name: 'Einbeiniges Wadenheben',         hint: 'Eine Hantel in der Hand, einbeinig. Volle Streckung oben. Beide Seiten.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, startKg: 10, unilateral: true, oneDb: true }
   ]
 };
 
@@ -127,7 +127,7 @@ export const PROGRESSIONS_POWER = {
   // Rumpfrotation & Schusshärte
   rotate: [
     { name: 'Russian Twist',             hint: 'Sitzend, Oberkörper zurückgelehnt, Füße frei. Zügig von Seite zu Seite drehen — die Rotation kommt aus dem Rumpf, nicht aus den Armen.', images: imgs('Russian_Twist'), unilateral: true },
-    { name: 'Russian Twist mit Hantel',  hint: 'Wie zuvor, eine Hantel vor der Brust. Sauber und zügig rotieren, nicht schleudern. Beide Seiten.', images: imgs('Russian_Twist'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Russian Twist mit Hantel',  hint: 'Wie zuvor, eine Hantel vor der Brust. Sauber und zügig rotieren, nicht schleudern. Beide Seiten.', images: imgs('Russian_Twist'), weighted: true, startKg: 6, unilateral: true, oneDb: true },
     { name: 'Liegestütz mit Rotation',   hint: 'Liegestütz, oben eine Hand zur Decke öffnen und den Rumpf mit aufdrehen. Hüfte bleibt hoch. Verbindet Druckkraft mit Rotation. Beide Seiten.', images: imgs('Push_Up_to_Side_Plank'), unilateral: true }
   ],
   // Wiederholungskraft — kurz und hart, gegen den Leistungsabfall im Spiel
@@ -140,45 +140,45 @@ export const PROGRESSIONS_POWER = {
   // Hantelvarianten stehen vorn; die Körpergewichtsübung greift, wenn keine
   // Hanteln da sind (beladene Einträge werden dann herausgefiltert).
   hinge: [
-    { name: 'Rumänisches Kreuzheben',    hint: 'Die wichtigste Kraftbasis für den Absprung. Hüfte weit zurück, Rücken gerade, aus der Dehnung zügig hochkommen. 2–3 Wdh. im Tank lassen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
-    { name: 'RDL mit Pause',             hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten, dann zügig hoch. Härtet die Hamstrings genau dort, wo sie im Sprint reißen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true },
-    { name: 'Einbeiniges RDL',           hint: 'Einbeinig, Hantel in der Gegenhand. Hüfte gerade halten — schult genau die Stabilität, die im Sand fehlt. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Rumänisches Kreuzheben',    hint: 'Die wichtigste Kraftbasis für den Absprung. Hüfte weit zurück, Rücken gerade, aus der Dehnung zügig hochkommen. 2–3 Wdh. im Tank lassen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 12 },
+    { name: 'RDL mit Pause',             hint: 'Rumänisches Kreuzheben, unten 2 Sek. in der Dehnung halten, dann zügig hoch. Härtet die Hamstrings genau dort, wo sie im Sprint reißen.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 12 },
+    { name: 'Einbeiniges RDL',           hint: 'Einbeinig, Hantel in der Gegenhand. Hüfte gerade halten — schult genau die Stabilität, die im Sand fehlt. Beide Seiten.', images: imgs('Stiff-Legged_Dumbbell_Deadlift'), weighted: true, startKg: 8, unilateral: true, oneDb: true },
     { name: 'Explosive Glute Bridge',    hint: 'Hüfte so schnell wie möglich nach oben schnellen, oben 1 Sek. maximal anspannen, kontrolliert ab. Beidbeinig.', images: imgs('Butt_Lift_Bridge') }
   ],
   squat: [
-    { name: 'Bulgarische Splitkniebeuge',hint: 'Hinterer Fuß auf dem Stuhl. Kontrolliert runter, zügig hoch. Einbeinige Stabilität für Landungen und Richtungswechsel. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, unilateral: true },
-    { name: 'Goblet Squat (explosiv)',   hint: 'Eine Hantel vor der Brust. Kontrolliert runter, so schnell wie möglich hoch. Moderates Gewicht — Geschwindigkeit schlägt Last.', images: imgs('Goblet_Squat'), weighted: true, oneDb: true },
+    { name: 'Bulgarische Splitkniebeuge',hint: 'Hinterer Fuß auf dem Stuhl. Kontrolliert runter, zügig hoch. Einbeinige Stabilität für Landungen und Richtungswechsel. Beide Seiten.', images: imgs('Split_Squat_with_Dumbbells'), weighted: true, startKg: 8, unilateral: true },
+    { name: 'Goblet Squat (explosiv)',   hint: 'Eine Hantel vor der Brust. Kontrolliert runter, so schnell wie möglich hoch. Moderates Gewicht — Geschwindigkeit schlägt Last.', images: imgs('Goblet_Squat'), weighted: true, startKg: 12, oneDb: true },
     { name: 'Kniebeuge mit Sprung',      hint: 'Tief in die Hocke, explosiv nach oben abspringen, weich landen. Ohne Zusatzgewicht.', images: imgs('Freehand_Jump_Squat') }
   ],
   // Oberkörper: hier geht es um Muskelaufbau und Definition, nicht um
   // Schnellkraft. Deshalb mittlere Wiederholungen, sauber geführt, mit
   // ein bis zwei Wiederholungen Reserve statt bis zum Muskelversagen.
   push: [
-    { name: 'Kurzhantel Floor Press',    hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, dann kraftvoll hoch. Der beste Brustreiz ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true },
-    { name: 'Enges Floor Press',         hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true },
+    { name: 'Kurzhantel Floor Press',    hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, dann kraftvoll hoch. Der beste Brustreiz ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true, startKg: 10 },
+    { name: 'Enges Floor Press',         hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true, startKg: 8 },
     { name: 'Explosive Liegestütze',     hint: 'Runter kontrolliert, hoch so schnell, dass die Hände fast abheben. Ergänzt das Drücken um einen Schnellkraftreiz.', images: imgs('Pushups') },
     { name: 'Plyo Push-ups',             hint: 'So kräftig hochdrücken, dass die Hände den Boden verlassen. Weich abfangen. Auf der Matte, nicht auf hartem Boden.', images: imgs('Plyo_Push-up') }
   ],
   pike: [
-    { name: 'Schulterdrücken (sitzend)', hint: 'Auf dem Stuhl, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, kontrolliert absenken. Die Basisübung für runde Schultern.', images: imgs('Seated_Dumbbell_Press'), weighted: true },
-    { name: 'Schulterdrücken (stehend)', hint: 'Im Stand, Bauch fest, Rippen unten — kein Hohlkreuz. Die Ganzkörperspannung macht es schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true },
-    { name: 'Arnold Press',              hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Trifft durch die Rotation die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'), weighted: true },
+    { name: 'Schulterdrücken (sitzend)', hint: 'Auf dem Stuhl, Rücken gerade. Hanteln von Schulterhöhe über den Kopf drücken, kontrolliert absenken. Die Basisübung für runde Schultern.', images: imgs('Seated_Dumbbell_Press'), weighted: true, startKg: 8 },
+    { name: 'Schulterdrücken (stehend)', hint: 'Im Stand, Bauch fest, Rippen unten — kein Hohlkreuz. Die Ganzkörperspannung macht es schwerer als sitzend.', images: imgs('Standing_Dumbbell_Press'), weighted: true, startKg: 8 },
+    { name: 'Arnold Press',              hint: 'Start mit Handflächen zum Körper, beim Drücken nach außen drehen. Trifft durch die Rotation die gesamte Schulter.', images: imgs('Arnold_Dumbbell_Press'), weighted: true, startKg: 6 },
     { name: 'Pike Push-ups',             hint: 'Hüfte hoch wie ein umgekehrtes V, Kopf Richtung Boden absenken und kraftvoll hochdrücken.', images: imgs('Handstand_Push-Ups') }
   ],
   pull: [
-    { name: 'Einarmiges Kurzhantel-Rudern', hint: 'Hand und Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'), weighted: true, unilateral: true, oneDb: true },
-    { name: 'Vorgebeugtes Rudern',       hint: 'Hüfte zurück, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln zur Hüfte ziehen, oben kurz halten.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true },
-    { name: 'Reverse Flyes',             hint: 'Vorgebeugt, leicht gebeugte Arme seitlich nach außen und oben führen. Trifft die hintere Schulter und den oberen Rücken — die beste Haltungsübung.', images: imgs('Reverse_Flyes'), weighted: true },
+    { name: 'Einarmiges Kurzhantel-Rudern', hint: 'Hand und Knie auf dem Stuhl, Rücken flach wie ein Tisch. Hantel eng am Körper zur Hüfte ziehen, Schulterblatt zuletzt. Beide Seiten.', images: imgs('One-Arm_Dumbbell_Row'), weighted: true, startKg: 12, unilateral: true, oneDb: true },
+    { name: 'Vorgebeugtes Rudern',       hint: 'Hüfte zurück, Oberkörper ca. 45°, Rücken gerade. Beide Hanteln zur Hüfte ziehen, oben kurz halten.', images: imgs('Bent_Over_Two-Dumbbell_Row'), weighted: true, startKg: 10 },
+    { name: 'Reverse Flyes',             hint: 'Vorgebeugt, leicht gebeugte Arme seitlich nach außen und oben führen. Trifft die hintere Schulter und den oberen Rücken — die beste Haltungsübung.', images: imgs('Reverse_Flyes'), weighted: true, startKg: 4 },
     { name: 'Reverse Snow Angels',       hint: 'Bauchlage, Arme gestreckt über den Kopf und zurück. Hält die Schultern hinten — Gegengewicht zum vielen Vorbeugen im Spiel.', images: imgs('Superman') }
   ],
   biceps: [
-    { name: 'Bizeps-Curls',              hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true },
-    { name: 'Hammer-Curls',              hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true },
-    { name: 'Konzentrations-Curls',      hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, unilateral: true, oneDb: true }
+    { name: 'Bizeps-Curls',              hint: 'Ellbogen bleiben am Körper fixiert. Zügig hoch, drei Sekunden kontrolliert ab — das Absenken bringt den Reiz. Kein Schwung aus der Hüfte.', images: imgs('Dumbbell_Bicep_Curl'), weighted: true, startKg: 8 },
+    { name: 'Hammer-Curls',              hint: 'Handflächen zeigen zueinander (Daumen oben). Trifft zusätzlich den Unterarm und lässt den Arm breiter wirken.', images: imgs('Hammer_Curls'), weighted: true, startKg: 8 },
+    { name: 'Konzentrations-Curls',      hint: 'Sitzend, Ellbogen an der Innenseite des Oberschenkels abstützen. Maximale Isolation, oben kurz anspannen. Beide Seiten.', images: imgs('Concentration_Curls'), weighted: true, startKg: 6, unilateral: true, oneDb: true }
   ],
   triceps: [
-    { name: 'Trizeps-Strecken über Kopf',hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, oneDb: true },
-    { name: 'Trizeps-Kickbacks',         hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, unilateral: true, oneDb: true },
+    { name: 'Trizeps-Strecken über Kopf',hint: 'Eine Hantel beidhändig hinter dem Kopf, Ellbogen zeigen nach vorne und bleiben eng. Streckt den langen Trizepskopf — der macht die Armrückseite dick.', images: imgs('Standing_Dumbbell_Triceps_Extension'), weighted: true, startKg: 8, oneDb: true },
+    { name: 'Trizeps-Kickbacks',         hint: 'Vorgebeugt, Oberarm parallel zum Körper fixiert. Nur der Unterarm bewegt sich, oben zwei Sekunden anspannen. Beide Seiten.', images: imgs('Tricep_Dumbbell_Kickback'), weighted: true, startKg: 5, unilateral: true, oneDb: true },
     { name: 'Dips am Stuhl',             hint: 'Hände auf der Stuhlkante hinter dir, Füße nach vorne. Körper absenken bis die Ellbogen 90° erreichen, dann hochdrücken.', images: imgs('Bench_Dips') }
   ],
   core: [

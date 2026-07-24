@@ -116,6 +116,7 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   const unilateral = !!exercise.unilateral;
   const weighted   = !!exercise.weighted;
   const oneDb      = !!exercise.oneDb;
+  const startKg    = exercise.startKg || null;
   // W12 (weekInPhase 4 in Phase 3) trainiert auf Woche-3-Niveau weiter
   const rangeIdx = Math.min(weekInPhase, 3) - 1;
 
@@ -185,7 +186,7 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   return {
     pattern: spec.pattern, priority: spec.priority,
     name: exercise.name, hint: exercise.hint, images: exercise.images || [],
-    sets, target, type, unilateral, weighted, oneDb, isDeload,
+    sets, target, type, unilateral, weighted, oneDb, startKg, isDeload,
     restSec: exercise.restSec || null,
     ladderIdx: idx
   };
