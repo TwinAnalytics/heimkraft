@@ -1,5 +1,10 @@
 import { PROGRESSIONS, PROGRESSIONS_DB, PROGRESSIONS_POWER, DAY_TEMPLATES } from './data.js';
 
+// Muster, die mit Hanteln nicht einer Schwierigkeits-Leiter folgen, sondern
+// wochenweise durch einen Variations-Pool rotieren. Das Gewicht steigert über
+// die Doppelprogression, deshalb darf die Übungsauswahl abwechseln.
+const VARIETY_DB = new Set(['push']);
+
 export function goalOf(profile) {
   return (profile && profile.goal) || 'hypertrophy';
 }
@@ -14,6 +19,13 @@ export function isPowerGoal(profile) {
 // calf auf die Hantel-Varianten, push und core bleiben Körpergewicht.
 export function ladderFor(pattern, profile) {
   const hasDb = !!(profile && profile.dumbbells);
+
+  // Variations-Pool (z.B. Brust) hat mit Hanteln Vorrang — auch im Athletik-Modus.
+  // Ein definierter Oberkörper entsteht über abwechslungsreiche Hantelreize, nicht
+  // über explosive Liegestütze.
+  if (hasDb && VARIETY_DB.has(pattern) && PROGRESSIONS_DB[pattern]) {
+    return PROGRESSIONS_DB[pattern];
+  }
 
   let ladder;
   if (isPowerGoal(profile) && PROGRESSIONS_POWER[pattern]) {
@@ -84,6 +96,11 @@ export function isDeloadWeek(week) {
   return weekInPhase === 4 && phase < 3;
 }
 
+export function isVarietyLadder(pattern, profile) {
+  return !!(profile && profile.dumbbells) &&
+         VARIETY_DB.has(pattern) && !!PROGRESSIONS_DB[pattern];
+}
+
 // Löst die Leiter-Stufe für eine Übung auf (vor dem Klemmen, inkl. Secondary-Abschlag).
 // Bei Hantelübungen zählt die Krafteinstufung aus dem Wizard nicht — dort steuert
 // das Gewicht die Last, deshalb startet jeder auf der Basis-Variante.
@@ -91,6 +108,15 @@ export function resolveLadderIndex(spec, profile, week) {
   const phase   = Math.ceil(week / 4);
   const ladder  = ladderFor(spec.pattern, profile);
   const adjust  = (profile.levelAdjust && profile.levelAdjust[spec.pattern]) || 0;
+
+  // Variations-Pool: über die Wochen durchrotieren (mit Wrap-around), ein
+  // Zweitslot am selben Tag startet versetzt für einen anderen Reiz.
+  if (isVarietyLadder(spec.pattern, profile)) {
+    const off = spec.priority === 'secondary' ? Math.floor(ladder.length / 2) : 0;
+    const vi  = (week - 1) + adjust + off;
+    return ((vi % ladder.length) + ladder.length) % ladder.length;
+  }
+
   // Bei Hantel- und Schnellkraft-Übungen zählt die Krafteinstufung nicht:
   // dort steuern Gewicht bzw. Technik die Belastung, nicht die Wizard-Werte.
   const fromScratch = isPowerGoal(profile) ||

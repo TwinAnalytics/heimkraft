@@ -60,9 +60,15 @@ export const PROGRESSIONS = {
 // sind diese Leitern kurz. Push und Core bleiben bewusst Körpergewicht:
 // die Liegestütz-Leiter trägt weiter und Planks brauchen keine Hanteln.
 export const PROGRESSIONS_DB = {
+  // Brust: kein Schwierigkeits-Aufbau, sondern ein Variations-Pool. Mit Hanteln
+  // steigert das Gewicht (Doppelprogression), deshalb wechselt die App hier
+  // wochenweise durch verschiedene Reize — Druck, Flys, Dehnung, innere Brust.
   push: [
     { name: 'Kurzhantel Floor Press',         hint: 'Rückenlage auf der Matte, Hanteln über der Brust. Absenken bis die Oberarme den Boden berühren, kurz halten, dann kraftvoll hoch. Die beste Brustübung ohne Bank.', images: imgs('Dumbbell_Floor_Press'), weighted: true, startKg: 10 },
+    { name: 'Kurzhantel Flys (am Boden)',     hint: 'Rückenlage, Arme leicht gebeugt über der Brust. Hanteln in weitem Bogen zur Seite absenken, bis die Oberarme den Boden berühren, dann wie eine Umarmung zusammenführen. Der Boden begrenzt die Tiefe und schützt die Schulter — bewusst leicht starten.', images: imgs('Dumbbell_Flyes'), weighted: true, startKg: 6 },
+    { name: 'Überzug (Pullover)',             hint: 'Rückenlage, eine Hantel beidhändig über der Brust. Mit fast gestreckten Armen hinter den Kopf absenken bis du die Dehnung in Brust und Flanken spürst, dann zurückziehen. Öffnet den Brustkorb.', images: imgs('Straight-Arm_Dumbbell_Pullover'), weighted: true, startKg: 10, oneDb: true },
     { name: 'Enges Floor Press',              hint: 'Floor Press mit engem Griff, Ellbogen dicht am Körper. Verlagert die Arbeit auf Trizeps und innere Brust.', images: imgs('Close-Grip_Dumbbell_Press'), weighted: true, startKg: 8 },
+    { name: 'Squeeze Press',                  hint: 'Zwei Hanteln über der Brust fest aneinanderdrücken und so — gegeneinander pressend — absenken und hochdrücken. Der Druck nach innen aktiviert die innere Brust maximal.', images: imgs('Isometric_Chest_Squeezes'), weighted: true, startKg: 8 },
     { name: 'Einarmiges Floor Press',         hint: 'Nur eine Hantel, die freie Hand liegt am Boden. Der Rumpf muss gegen die Drehung arbeiten. Beide Seiten.', images: imgs('Dumbbell_Floor_Press'), weighted: true, startKg: 10, unilateral: true, oneDb: true }
   ],
   biceps: [

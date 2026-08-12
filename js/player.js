@@ -1,4 +1,4 @@
-import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink, ladderFor, isPowerGoal } from './planner.js';
+import { todaysWorkout, generateExercise, parseTargetDefault, parseTargetRange, ytLink, ladderFor, isPowerGoal, isVarietyLadder } from './planner.js';
 import { PATTERN_LABELS, WARMUP, WARMUP_POWER } from './data.js';
 import {
   loadProfile, saveProfile, appendExLogEntry, loadExLog, loadSettings,
@@ -394,11 +394,25 @@ function renderWeightControl(ex, kgHist) {
 function renderSwapButtons(ex) {
   const wrap = document.getElementById('swapRow');
   if (!wrap) return;
-  const canSwap = session.setIdx === 0;
-  const idx     = ladderIndexOf(ex);
-  const ladder  = ladderFor(ex.pattern, loadProfile()) || [];
+  const canSwap  = session.setIdx === 0;
+  const profile  = loadProfile();
   const btnE = document.getElementById('btnEasier');
   const btnH = document.getElementById('btnHarder');
+
+  // Variations-Pool (Brust): frei durchblättern statt leichter/schwerer
+  if (canSwap && isVarietyLadder(ex.pattern, profile)) {
+    btnE.textContent = '← Variante';
+    btnH.textContent = 'Variante →';
+    btnE.classList.remove('hidden');
+    btnH.classList.remove('hidden');
+    wrap.classList.remove('hidden');
+    return;
+  }
+
+  btnE.textContent = '↓ Stufe leichter';
+  btnH.textContent = '↑ Stufe schwerer';
+  const idx    = ladderIndexOf(ex);
+  const ladder = ladderFor(ex.pattern, profile) || [];
   btnE.classList.toggle('hidden', !canSwap || idx <= 0);
   btnH.classList.toggle('hidden', !canSwap || idx < 0 || idx >= ladder.length - 1);
   wrap.classList.toggle('hidden', (!canSwap) || (idx <= 0 && idx >= ladder.length - 1));
