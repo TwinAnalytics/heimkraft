@@ -3,7 +3,7 @@ import { PROGRESSIONS, PROGRESSIONS_DB, PROGRESSIONS_POWER, DAY_TEMPLATES } from
 // Muster, die mit Hanteln nicht einer Schwierigkeits-Leiter folgen, sondern
 // wochenweise durch einen Variations-Pool rotieren. Das Gewicht steigert über
 // die Doppelprogression, deshalb darf die Übungsauswahl abwechseln.
-const VARIETY_DB = new Set(['push']);
+const VARIETY_DB = new Set(['push', 'pull', 'pike', 'biceps', 'triceps', 'rear']);
 
 export function goalOf(profile) {
   return (profile && profile.goal) || 'hypertrophy';
@@ -20,10 +20,9 @@ export function isPowerGoal(profile) {
 export function ladderFor(pattern, profile) {
   const hasDb = !!(profile && profile.dumbbells);
 
-  // Variations-Pool (z.B. Brust) hat mit Hanteln Vorrang — auch im Athletik-Modus.
-  // Ein definierter Oberkörper entsteht über abwechslungsreiche Hantelreize, nicht
-  // über explosive Liegestütze.
-  if (hasDb && VARIETY_DB.has(pattern) && PROGRESSIONS_DB[pattern]) {
+  // Variations-Pool (z.B. Brust) hat mit Hanteln Vorrang — der Pool bestimmt die
+  // Übung, das Gewicht die Last. isVarietyLadder regelt, in welchem Modus das gilt.
+  if (isVarietyLadder(pattern, profile)) {
     return PROGRESSIONS_DB[pattern];
   }
 
@@ -97,8 +96,14 @@ export function isDeloadWeek(week) {
 }
 
 export function isVarietyLadder(pattern, profile) {
-  return !!(profile && profile.dumbbells) &&
-         VARIETY_DB.has(pattern) && !!PROGRESSIONS_DB[pattern];
+  if (!(profile && profile.dumbbells) || !PROGRESSIONS_DB[pattern] || !VARIETY_DB.has(pattern)) {
+    return false;
+  }
+  // Brust rotiert in beiden Modi. Die übrigen Oberkörper-Muster rotieren nur im
+  // Aufbau-Modus — im Athletik-Modus bleiben dort die Schnellkraft-Varianten
+  // (z.B. Push Press) erhalten.
+  if (pattern === 'push') return true;
+  return !isPowerGoal(profile);
 }
 
 // Löst die Leiter-Stufe für eine Übung auf (vor dem Klemmen, inkl. Secondary-Abschlag).
@@ -146,10 +151,19 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   // W12 (weekInPhase 4 in Phase 3) trainiert auf Woche-3-Niveau weiter
   const rangeIdx = Math.min(weekInPhase, 3) - 1;
 
-  const power = isPowerGoal(profile);
+  const power      = isPowerGoal(profile);
+  const isSuperset = spec.ss !== undefined && spec.ss !== null;
 
   let sets, target, type;
-  if (spec.pattern === 'condition') {
+  if (isSuperset) {
+    // Supersatz-Ganzkörperplan: 3 Runden pro Block. Erste zwei Blöcke schwerer
+    // (weniger Wdh.), letzte zwei höher — für Kraft UND Aufbau (wie im Video).
+    type = 'reps';
+    sets = isDeload ? 2 : 3;
+    const heavy = spec.ss <= 1;
+    const range = isDeload ? (heavy ? '6' : '10') : (heavy ? '8–10' : '12–15');
+    target = unilateral ? `${range} Wdh. pro Seite` : `${range} Wdh.`;
+  } else if (spec.pattern === 'condition') {
     // Intervalle: kurz und all-out, die Pause dazwischen ist Teil des Reizes
     type = 'time';
     sets = isDeload ? 4 : [5, 6, 7][rangeIdx] || 6;
@@ -171,9 +185,10 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     target = unilateral ? `${range} Sprünge pro Seite` : `${range} Sprünge`;
   } else {
     type = 'reps';
-    // Arme brauchen keine vier Sätze — sie arbeiten beim Drücken und Ziehen mit
-    const isArm = spec.pattern === 'biceps' || spec.pattern === 'triceps';
-    sets = isDeload ? 3 : (spec.pattern === 'calf' || isArm ? 3 : 4);
+    // Arme, Waden und Bauch brauchen keine vier Sätze — sie arbeiten mit
+    const isArm  = spec.pattern === 'biceps' || spec.pattern === 'triceps';
+    const isSmall = isArm || spec.pattern === 'calf' || spec.pattern === 'crunch' || spec.pattern === 'rear';
+    sets = isDeload ? 3 : (isSmall ? 3 : 4);
     let ranges;
     if (power) {
       // Zwei Welten in einem Plan: Beine werden explosiv und mit Reserve
@@ -193,6 +208,11 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     } else if (spec.pattern === 'calf') {
       // Waden vertragen bei Zusatzlast weniger Wdh. als im reinen Körpergewicht
       ranges = weighted ? ['12–15', '14–18', '15–20'] : ['15–20', '18–22', '20–25'];
+    } else if (spec.pattern === 'crunch') {
+      ranges = ['12–15', '15–18', '15–20'];
+    } else if (spec.pattern === 'rear') {
+      // Hintere Schulter: leicht und sauber, höhere Wdh.
+      ranges = ['12–15', '12–15', '15–18'];
     } else if (weighted) {
       // Doppelprogression: Wdh.-Fenster bleibt schmal, gesteigert wird über kg
       ranges = spec.priority === 'main' ? ['8–10', '9–11', '10–12'] : ['10–12', '11–13', '12–15'];
@@ -214,6 +234,7 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     name: exercise.name, hint: exercise.hint, images: exercise.images || [],
     sets, target, type, unilateral, weighted, oneDb, startKg, isDeload,
     restSec: exercise.restSec || null,
+    ss: (spec.ss !== undefined ? spec.ss : null),
     ladderIdx: idx
   };
 }
@@ -232,8 +253,13 @@ export function templateKey(profile) {
   return profile.split || String(profile.frequency);
 }
 
+export function dayCount(profile) {
+  return DAY_TEMPLATES[templateKey(profile)].length;
+}
+
 export function generateWorkout(dayIdx, week, profile) {
-  const template = DAY_TEMPLATES[templateKey(profile)][dayIdx];
+  const days     = DAY_TEMPLATES[templateKey(profile)];
+  const template = days[dayIdx % days.length];   // wrap: Ein-Tages-Pläne wiederholen sich
   const usedByPattern = {};
   const exercises = template.ex.map(spec => {
     const ex   = generateExercise(spec, profile, week);

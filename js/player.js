@@ -15,10 +15,10 @@ const PATTERN_DE = {
   push: 'Push', pike: 'Pike', pull: 'Pull',
   squat: 'Squat', hinge: 'Hinge', calf: 'Waden', core: 'Core',
   jump: 'Sprung', bound: 'Antritt', rotate: 'Rotation', condition: 'Intervall',
-  biceps: 'Bizeps', triceps: 'Trizeps'
+  biceps: 'Bizeps', triceps: 'Trizeps', rear: 'Rücken', crunch: 'Bauch'
 };
 
-const ALL_PATTERNS = ['push','pike','pull','squat','hinge','calf','core','jump','bound','rotate','condition','biceps','triceps'];
+const ALL_PATTERNS = ['push','pike','pull','squat','hinge','calf','core','jump','bound','rotate','condition','biceps','triceps','rear','crunch'];
 
 /* ── Audio: geteilter Context, auf erster User-Geste entsperrt (iOS) ── */
 let audioCtx = null;
@@ -209,7 +209,7 @@ function applySwapOffsets(profile) {
       ...profile,
       levelAdjust: { ...(profile.levelAdjust || {}), [ex.pattern]: (((profile.levelAdjust || {})[ex.pattern]) || 0) + off }
     };
-    return generateExercise({ pattern: ex.pattern, priority: ex.priority }, clone, w.week);
+    return generateExercise({ pattern: ex.pattern, priority: ex.priority, ss: ex.ss }, clone, w.week);
   });
   session.totalSets = w.exercises.reduce((s, e) => s + e.sets, 0);
 }
@@ -252,20 +252,9 @@ function renderPlayer() {
     document.getElementById('exView').classList.add('hidden');
     document.getElementById('restView').classList.remove('hidden');
     document.getElementById('doneView').classList.add('hidden');
-    let nextLabel, nextEx;
-    if (session.setIdx < ex.sets) {
-      nextLabel = `Satz ${session.setIdx + 1}`;
-      nextEx    = ex.name;
-    } else if (session.exIdx + 1 < w.exercises.length) {
-      const ne  = w.exercises[session.exIdx + 1];
-      nextLabel = 'Satz 1';
-      nextEx    = ne.name;
-    } else {
-      nextLabel = 'Letzte';
-      nextEx    = '—';
-    }
-    document.getElementById('restNext').textContent   = nextLabel;
-    document.getElementById('restExName').textContent = nextEx;
+    // Nach completeSet zeigen exIdx/setIdx bereits auf die kommende Übung
+    document.getElementById('restNext').textContent   = `Satz ${session.setIdx + 1}`;
+    document.getElementById('restExName').textContent = ex.name;
   } else {
     document.getElementById('exView').classList.remove('hidden');
     document.getElementById('restView').classList.add('hidden');
@@ -273,6 +262,7 @@ function renderPlayer() {
     document.getElementById('exNum').textContent     = `Übung ${session.exIdx + 1} von ${w.exercises.length}`;
     document.getElementById('exName').textContent    = ex.name;
     document.getElementById('exPattern').textContent = PATTERN_LABELS[ex.pattern] || ex.pattern.toUpperCase();
+    renderSupersetBadge(ex);
     document.getElementById('exTarget').firstChild.textContent = ex.target;
     document.getElementById('exTargetLabel').textContent       = `${ex.sets} Sätze · pro Satz`;
     document.getElementById('exHint').textContent  = ex.hint;
@@ -318,6 +308,18 @@ function renderPlayer() {
       btnStop.classList.add('hidden');
       document.getElementById('repValue').textContent = defaultReps;
       document.getElementById('repLabel').textContent = ex.unilateral ? 'Wdh. pro Seite' : 'Wdh. geschafft';
+    }
+
+    // Supersatz: Button signalisiert direkten Wechsel ohne Pause
+    if (!isTime) {
+      const group = supersetGroup(session.exIdx);
+      const pos   = group.indexOf(session.exIdx);
+      if (pos < group.length - 1) {
+        const nextName = w.exercises[group[pos + 1]].name;
+        btnDone.textContent = `Weiter → ${nextName}`;
+      } else {
+        btnDone.textContent = 'Satz abgeschlossen';
+      }
     }
 
     const setsEl = document.getElementById('exSets');
@@ -389,6 +391,18 @@ function renderWeightControl(ex, kgHist) {
   document.getElementById('kgValue').textContent = kg;
   document.getElementById('kgUnitLabel').textContent = ex.oneDb ? 'kg (eine Hantel)' : 'kg (pro Hantel)';
   if (hint) hint.textContent = note;
+}
+
+function renderSupersetBadge(ex) {
+  const el = document.getElementById('exSuperset');
+  if (!el) return;
+  const group = supersetGroup(session.exIdx);
+  if (group.length < 2) { el.classList.add('hidden'); el.textContent = ''; return; }
+  const pos = group.indexOf(session.exIdx) + 1;
+  el.classList.remove('hidden');
+  el.textContent = pos < group.length
+    ? `🔗 Supersatz · Übung ${pos}/${group.length} — danach direkt weiter, keine Pause`
+    : `🔗 Supersatz · Übung ${pos}/${group.length} — danach Pause`;
 }
 
 function renderSwapButtons(ex) {
@@ -537,24 +551,55 @@ function updateTimerClock(remain) {
   el.classList.toggle('running', session && session.exTimerRunning);
 }
 
+// Zusammenhängender Supersatz-Block um exIdx (Übungen mit gleichem ss-Wert).
+// Ohne ss ist die Übung ein Einzelblock.
+function supersetGroup(exIdx) {
+  const exs = session.workout.exercises;
+  const ss  = exs[exIdx].ss;
+  if (ss === null || ss === undefined) return [exIdx];
+  let start = exIdx, end = exIdx;
+  while (start > 0 && exs[start - 1].ss === ss) start--;
+  while (end < exs.length - 1 && exs[end + 1].ss === ss) end++;
+  const g = [];
+  for (let i = start; i <= end; i++) g.push(i);
+  return g;
+}
+
 /* ── Satz-Abschluss & Pause ── */
 function completeSet() {
-  const ex = session.workout.exercises[session.exIdx];
+  const exs = session.workout.exercises;
+  const ex  = exs[session.exIdx];
   session.history[session.exIdx].push(session.currentReps);
   session.kgHistory[session.exIdx].push(ex.weighted ? session.currentKg : 0);
-  session.setIdx++;
   session.completedSets++;
+
+  const group = supersetGroup(session.exIdx);
+  const pos   = group.indexOf(session.exIdx);
+
+  // Innerhalb eines Supersatzes: direkt zur nächsten Übung, KEINE Pause
+  if (pos < group.length - 1) {
+    session.exIdx = group[pos + 1];   // setIdx (Runde) bleibt gleich
+    persistSnapshot();
+    renderPlayer();
+    return;
+  }
+
+  // Letzte Übung des Blocks → eine Runde ist fertig
+  session.setIdx++;
+  const firstEx = exs[group[0]];
   persistSnapshot();
-  if (session.setIdx >= ex.sets) {
-    if (session.exIdx + 1 >= session.workout.exercises.length) {
-      finishWorkout();
-      return;
-    }
-    session.exIdx++;
+
+  if (session.setIdx >= firstEx.sets) {
+    // Block komplett → nächster Block
+    const nextIdx = group[group.length - 1] + 1;
+    if (nextIdx >= exs.length) { finishWorkout(); return; }
+    session.exIdx  = nextIdx;
     session.setIdx = 0;
-    startRest(restDurationFor(session.workout.exercises[session.exIdx]));
+    startRest(restDurationFor(exs[nextIdx]));
   } else {
-    startRest(restDurationFor(ex));
+    // Nächste Runde: zurück zur ersten Übung des Blocks, nach Pause
+    session.exIdx = group[0];
+    startRest(restDurationFor(firstEx));
   }
 }
 

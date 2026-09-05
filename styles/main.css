@@ -1675,6 +1675,23 @@
   .adj-chip.down { color: var(--warn); border-color: rgba(255, 69, 48, 0.4); }
   .adj-chip.up   { color: var(--accent); border-color: rgba(216, 255, 61, 0.4); }
 
+  /* Supersatz-Hinweis im Player */
+  .ex-superset {
+    display: inline-block;
+    margin: 0 auto 16px;
+    padding: 7px 14px;
+    border: 1px solid var(--accent);
+    background: rgba(216, 255, 61, 0.08);
+    font-family: 'JetBrains Mono';
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    max-width: 460px;
+    line-height: 1.5;
+  }
+  .ex-superset.hidden { display: none; }
+
   /* Plan-Überblick: Startgewicht-Hinweis */
   .pd-kg {
     font-family: 'JetBrains Mono';

@@ -15,21 +15,42 @@ export function openSettings() {
   dbBox.disabled = !profile;
 
   const goalSel  = document.getElementById('setGoal');
-  const splitSel = document.getElementById('setSplit');
   goalSel.value  = (profile && profile.goal) || 'hypertrophy';
   goalSel.disabled  = !profile;
-  splitSel.value = (profile && /^power/.test(profile.split || '')) ? profile.split : 'power2';
-  splitSel.disabled = !profile;
-  syncSplitRow();
+  syncSplitRow(profile && profile.split);
 
   document.getElementById('settingsModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
-// Die Split-Auswahl ist nur im Athletik-Modus relevant
-function syncSplitRow() {
-  const isPower = document.getElementById('setGoal').value === 'power';
-  document.getElementById('setSplitRow').style.display = isPower ? '' : 'none';
+function freqForSplit(split) {
+  if (split === '4') return 4;
+  if (split === 'power2') return 2;
+  return 3;   // super, fullbody, '3', power3
+}
+
+const SPLIT_OPTIONS = {
+  power: [
+    { v: 'power2', t: '2× Athletik' },
+    { v: 'power3', t: '3× Athletik' }
+  ],
+  hypertrophy: [
+    { v: 'super',    t: 'Ganzkörper · Supersätze' },
+    { v: 'fullbody', t: '3× Ganzkörper' },
+    { v: '3',        t: '3× Push · Pull · Legs' },
+    { v: '4',        t: '4× Upper · Lower' }
+  ]
+};
+
+// Die Aufteilung hängt vom gewählten Ziel ab; Optionen entsprechend neu füllen
+function syncSplitRow(preferred) {
+  const goal = document.getElementById('setGoal').value;
+  const sel  = document.getElementById('setSplit');
+  const opts = SPLIT_OPTIONS[goal] || SPLIT_OPTIONS.hypertrophy;
+  sel.innerHTML = opts.map(o => `<option value="${o.v}">${o.t}</option>`).join('');
+  const match = opts.find(o => o.v === preferred);
+  sel.value = match ? preferred : opts[0].v;
+  sel.disabled = !loadProfile();
 }
 
 export function closeSettings() {
@@ -53,27 +74,19 @@ function persist() {
 
   const goalChanged  = (profile.goal || 'hypertrophy') !== wantGoal;
   const dbChanged    = !!profile.dumbbells !== wantDb;
-  const splitChanged = wantGoal === 'power' && profile.split !== wantSplit;
+  const splitChanged = profile.split !== wantSplit;
 
   if (!goalChanged && !dbChanged && !splitChanged) return;
 
   profile.dumbbells = wantDb;
   profile.goal      = wantGoal;
-
-  if (wantGoal === 'power') {
-    profile.split     = wantSplit;
-    profile.frequency = wantSplit === 'power3' ? 3 : 2;
-  } else if (goalChanged) {
-    // Zurück zum Muskelaufbau: auf den zuletzt genutzten Kraft-Split zurückfallen
-    profile.split     = profile.strengthSplit || '3';
-    profile.frequency = profile.split === '4' ? 4 : 3;
-  }
-  if (wantGoal === 'hypertrophy') profile.strengthSplit = profile.split;
+  profile.split     = wantSplit;
+  profile.frequency = freqForSplit(wantSplit);
 
   // Anpassungen und angefangene Einheit gelten für die alte Auswahl
   profile.levelAdjust = {
     push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0,
-    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0
+    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0, rear: 0, crunch: 0
   };
   saveProfile(profile);
   clearSessionSnapshot();

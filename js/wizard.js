@@ -51,6 +51,7 @@ function readWizStep() {
 const SPLIT_LABELS = {
   'power2':   '2× Schnellkraft & Definition',
   'power3':   '3× Schnellkraft & Definition',
+  'super':    'Ganzkörper · Supersätze',
   'fullbody': '3× Ganzkörper',
   '3':        '3× Push · Pull · Legs',
   '4':        '4× Upper · Lower'
@@ -105,7 +106,7 @@ function finishWizard() {
     },
     tests:        { push: wizData.push, pull: wizData.pull, squat: wizData.squat, plank: wizData.plank },
     levelAdjust:  { push: 0, pike: 0, pull: 0, squat: 0, hinge: 0, calf: 0, core: 0,
-                    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0 },
+                    jump: 0, bound: 0, rotate: 0, condition: 0, biceps: 0, triceps: 0, rear: 0, crunch: 0 },
     sessionsDone: 0,
     planBaseline: Object.keys(getTrainLog()).length,
     createdAt:    new Date().toISOString()

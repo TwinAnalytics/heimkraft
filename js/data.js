@@ -52,6 +52,16 @@ export const PROGRESSIONS = {
     { name: 'Hollow Body Hold',                   hint: 'Auf Rücken, Arme über Kopf, Beine 20 cm vom Boden – alles schwebt.',                  images: imgs('Flutter_Kicks'), static: true },
     { name: 'Tuck L-Sit (zwei Stühle)',           hint: 'Hände auf zwei Stuhlkanten neben dir. Knie zur Brust heben und halten.',              images: imgs('Seated_Leg_Tucks'), static: true },
     { name: 'L-Sit (zwei Stühle)',                hint: 'Hände auf zwei Stuhlkanten. Beine gestreckt waagerecht halten.',                       images: imgs('Seated_Leg_Tucks'), static: true }
+  ],
+  // Oberer Rücken & hintere Schulter ohne Hantel
+  rear: [
+    { name: 'Reverse Snow Angels',                hint: 'Bauchlage, Arme gestreckt am Körper. Handrücken zeigen nach oben, Arme flach über den Kopf führen und zurück — durchgehend leicht vom Boden abgehoben.', images: imgs('Superman') },
+    { name: 'W-Raises in Bauchlage',              hint: 'Bauchlage, Arme in W-Form (Ellbogen 90°). Schulterblätter kräftig zusammenziehen, Arme abheben.', images: imgs('Superman') },
+    { name: 'Superman Hold',                      hint: 'Bauchlage, Arme und Beine gleichzeitig heben und 2 Sek. oben halten.', images: imgs('Superman') }
+  ],
+  crunch: [
+    { name: 'Crunch',                             hint: 'Rückenlage, Beine angestellt, Hände an den Schläfen. Oberkörper einrollen, unterer Rücken bleibt am Boden. Oben kurz anspannen.', images: imgs('Crunches') },
+    { name: 'Cross-Body Crunch',                  hint: 'Wie der Crunch, aber den Ellbogen diagonal zum gegenüberliegenden Knie führen. Trifft die seitliche Bauchmuskulatur. Beide Seiten.', images: imgs('Cross-Body_Crunch') }
   ]
 };
 
@@ -105,6 +115,18 @@ export const PROGRESSIONS_DB = {
   calf: [
     { name: 'Wadenheben mit Hanteln',         hint: 'Hanteln seitlich, Fußballen auf der Mattenkante. Maximal hoch, 2 Sek. halten, 3 Sek. tief absenken.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, startKg: 12 },
     { name: 'Einbeiniges Wadenheben',         hint: 'Eine Hantel in der Hand, einbeinig. Volle Streckung oben. Beide Seiten.', images: imgs('Standing_Dumbbell_Calf_Raise'), weighted: true, startKg: 10, unilateral: true, oneDb: true }
+  ],
+  // Oberer Rücken & hintere Schulter — die Haltungsmuskeln, die vom vielen
+  // Sitzen und Vorbeugen schwach werden. Bewusst leichtes Startgewicht.
+  rear: [
+    { name: 'Reverse Flys',                   hint: 'Vorgebeugt, Rücken gerade, leicht gebeugte Arme in weitem Bogen nach außen-oben führen. Schulterblätter oben maximal zusammenziehen, Arme bleiben im gleichen Winkel.', images: imgs('Reverse_Flyes'), weighted: true, startKg: 4 },
+    { name: 'Reverse Flys mit Pause',         hint: 'Wie Reverse Flys, oben 2 Sek. die Spannung zwischen den Schulterblättern halten, dann langsam ab. Noch stärkerer Reiz für den oberen Rücken.', images: imgs('Reverse_Flyes'), weighted: true, startKg: 4 },
+    { name: 'Sitzende Reverse Flys',          hint: 'Auf der Stuhlkante sitzend, Oberkörper weit nach vorne über die Oberschenkel. Nimmt den unteren Rücken raus, isoliert die hintere Schulter.', images: imgs('Reverse_Flyes'), weighted: true, startKg: 4 }
+  ],
+  // Gerade Bauchmuskulatur mit Zusatzgewicht — der Finisher des Supersatz-Plans
+  crunch: [
+    { name: 'Crunch mit Gewicht',             hint: 'Rückenlage, Beine angestellt. Eine Hantel auf der Brust halten und geradlinig nach oben schieben — nur der Oberkörper rollt ein, der untere Rücken bleibt am Boden.', images: imgs('Weighted_Crunches'), weighted: true, startKg: 6, oneDb: true },
+    { name: 'Cross-Body Crunch mit Gewicht',  hint: 'Wie der Crunch, aber die Hantel diagonal zur gegenüberliegenden Hüfte schieben. Trainiert zusätzlich die seitliche Bauchmuskulatur. Beide Seiten.', images: imgs('Cross-Body_Crunch'), weighted: true, startKg: 4, oneDb: true }
   ]
 };
 
@@ -218,10 +240,31 @@ export const PATTERN_LABELS = {
   rotate:    'CORE · ROTATION',
   condition: 'KONDITION · INTERVALL',
   biceps:    'ARME · BIZEPS',
-  triceps:   'ARME · TRIZEPS'
+  triceps:   'ARME · TRIZEPS',
+  rear:      'RÜCKEN · HINTERE SCHULTER',
+  crunch:    'CORE · BAUCH'
 };
 
 export const DAY_TEMPLATES = {
+  // Ganzkörper mit Supersätzen (nach dem Video). Übungen mit demselben `ss`-Wert
+  // bilden einen Supersatz: direkt hintereinander, Pause erst nach dem Paar.
+  // Erste zwei Blöcke schwerer (weniger Wdh.), letzte zwei höher — die App
+  // steuert das über die ss-Nummer. Braucht Kurzhanteln.
+  'super': [
+    { key: 'gkA', name: 'Ganzkörper Supersätze', focus: 'Beine · Rücken · Brust · Arme · Bauch',
+      ex: [
+        { pattern: 'squat',   priority: 'main', ss: 0 },   // Block 1: Split Squat
+        { pattern: 'pull',    priority: 'main', ss: 0 },   //          + Rudern
+        { pattern: 'hinge',   priority: 'main', ss: 1 },   // Block 2: Kreuzheben
+        { pattern: 'pike',    priority: 'main', ss: 1 },   //          + Schulterdrücken
+        { pattern: 'push',    priority: 'main', ss: 2 },   // Block 3: Brust
+        { pattern: 'rear',    priority: 'main', ss: 2 },   //          + Reverse Flys
+        { pattern: 'triceps', priority: 'main', ss: 3 },   // Block 4: Trizeps
+        { pattern: 'biceps',  priority: 'main', ss: 3 },   //          + Bizeps
+        { pattern: 'crunch',  priority: 'main' }           // Finisher: Bauch
+      ]
+    }
+  ],
   '3': [
     { key: 'push',  name: 'Push',  focus: 'Brust · Schultern · Trizeps',
       ex: [

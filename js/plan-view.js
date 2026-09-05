@@ -1,4 +1,4 @@
-import { generateWorkout, planProgress, isDeloadWeek } from './planner.js';
+import { generateWorkout, planProgress, isDeloadWeek, dayCount } from './planner.js';
 import { loadProfile } from './storage.js';
 import { getTrainLog } from './logbook.js';
 
@@ -74,12 +74,15 @@ function renderPlan() {
     overview.appendChild(weekEl);
 
     const bodyEl = weekEl.querySelector('.plan-week-body-inner');
-    for (let dayIdx = 0; dayIdx < numDays; dayIdx++) {
+    // Nur die tatsächlich unterschiedlichen Trainingstage zeigen (Ein-Tages-
+    // Pläne wie der Supersatz-Plan erscheinen einmal, nicht dreimal).
+    const uniqueDays = dayCount(profile);
+    for (let dayIdx = 0; dayIdx < uniqueDays; dayIdx++) {
       const w    = generateWorkout(dayIdx, week, profile);
       const card = document.createElement('div');
       card.className = 'plan-day-card';
       card.innerHTML = `
-        <div class="pd-tag">Tag ${dayIdx + 1}</div>
+        <div class="pd-tag">${uniqueDays > 1 ? `Tag ${dayIdx + 1}` : 'Workout'}</div>
         <h4>${w.name}</h4>
         <ul>
           ${w.exercises.map(ex => `<li><span>${ex.name}${ex.weighted && ex.startKg ? ` <em class="pd-kg">ab ${ex.startKg} kg${ex.oneDb ? '' : '/Hantel'}</em>` : ''}</span><b>${ex.sets}×${ex.target}</b></li>`).join('')}

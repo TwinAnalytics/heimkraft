@@ -269,6 +269,11 @@
         </button>
 
         <div class="wiz-choice-head">Muskelaufbau</div>
+        <button class="wiz-choice-btn" data-freq="3" data-split="super" data-goal="hypertrophy">
+          <span class="wc-num">2–3×</span>
+          <span class="wc-label">Ganzkörper · Supersätze <em class="wc-reco">Kurzhanteln</em></span>
+          <span class="wc-desc">Ganzer Körper in ~45 Min. über Supersätze — zwei Übungen direkt hintereinander, dann Pause. Effektiver Aufbau bei kurzer Trainingszeit.</span>
+        </button>
         <button class="wiz-choice-btn" data-freq="3" data-split="fullbody" data-goal="hypertrophy">
           <span class="wc-num">3×</span>
           <span class="wc-label">Ganzkörper <em class="wc-reco">Für Einsteiger</em></span>
@@ -409,6 +414,7 @@
       <div class="player-pattern" id="exPattern">PUSH</div>
       <div class="player-num" id="exNum">Übung 1</div>
       <div class="player-name" id="exName">—</div>
+      <div class="ex-superset hidden" id="exSuperset"></div>
       <div class="player-images" id="exImages"></div>
       <div class="player-target" id="exTarget">—<small id="exTargetLabel">Sätze · Wiederholungen</small></div>
       <div class="player-sets" id="exSets"></div>
@@ -528,11 +534,8 @@
         </select>
       </div>
       <div class="set-row" id="setSplitRow">
-        <label for="setSplit">Einheiten pro Woche<small>Bei viel Sport im Sand lieber zwei</small></label>
-        <select id="setSplit">
-          <option value="power2">2× Athletik</option>
-          <option value="power3">3× Athletik</option>
-        </select>
+        <label for="setSplit">Aufteilung<small>Der Supersatz-Plan trainiert den ganzen Körper in ~45 Min.</small></label>
+        <select id="setSplit"></select>
       </div>
     </div>
     <div class="set-group">
