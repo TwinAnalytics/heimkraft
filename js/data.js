@@ -250,18 +250,25 @@ export const DAY_TEMPLATES = {
   // bilden einen Supersatz: direkt hintereinander, Pause erst nach dem Paar.
   // Erste zwei Blöcke schwerer (weniger Wdh.), letzte zwei höher — die App
   // steuert das über die ss-Nummer. Braucht Kurzhanteln.
+  // Gewichtsgepaarte Supersätze: beide Übungen eines Blocks nutzen dasselbe
+  // Gewicht (spec.kg) — mit einer verstellbaren Hantel stellst du pro Block
+  // einmal ein und wechselst innerhalb des Blocks nie. Nur 3 Umstellungen im
+  // ganzen Workout (12 → 10 → 10 → 8 kg). Erste zwei Blöcke schwerer.
   'super': [
-    { key: 'gkA', name: 'Ganzkörper Supersätze', focus: 'Beine · Rücken · Brust · Arme · Bauch',
+    { key: 'gkA', name: 'Ganzkörper Supersätze', focus: 'Ganzer Körper · gleiche Gewichte pro Block',
       ex: [
-        { pattern: 'squat',   priority: 'main', ss: 0 },   // Block 1: Split Squat
-        { pattern: 'pull',    priority: 'main', ss: 0 },   //          + Rudern
-        { pattern: 'hinge',   priority: 'main', ss: 1 },   // Block 2: Kreuzheben
-        { pattern: 'pike',    priority: 'main', ss: 1 },   //          + Schulterdrücken
-        { pattern: 'push',    priority: 'main', ss: 2 },   // Block 3: Brust
-        { pattern: 'rear',    priority: 'main', ss: 2 },   //          + Reverse Flys
-        { pattern: 'triceps', priority: 'main', ss: 3 },   // Block 4: Trizeps
-        { pattern: 'biceps',  priority: 'main', ss: 3 },   //          + Bizeps
-        { pattern: 'crunch',  priority: 'main' }           // Finisher: Bauch
+        // Block 1 · 12 kg — Rücken + Beinrückseite
+        { pattern: 'pull',    priority: 'main', ss: 0, pick: 'Vorgebeugtes Rudern (beidarmig)', kg: 12 },
+        { pattern: 'hinge',   priority: 'main', ss: 0, pick: 'Rumänisches Kreuzheben',          kg: 12 },
+        // Block 2 · 10 kg — Beine + Brust
+        { pattern: 'squat',   priority: 'main', ss: 1, pick: 'Bulgarische Splitkniebeuge',      kg: 10 },
+        { pattern: 'push',    priority: 'main', ss: 1, pick: 'Kurzhantel Floor Press',          kg: 10 },
+        // Block 3 · 10 kg — Schultern + Bizeps
+        { pattern: 'pike',    priority: 'main', ss: 2, pick: 'Schulterdrücken (sitzend)',       kg: 10 },
+        { pattern: 'biceps',  priority: 'main', ss: 2, pick: 'Bizeps-Curls',                    kg: 10 },
+        // Block 4 · 8 kg — Trizeps + Bauch (Bauch ohne Gewicht)
+        { pattern: 'triceps', priority: 'main', ss: 3, pick: 'Trizeps-Kickbacks',               kg: 8 },
+        { pattern: 'crunch',  priority: 'main', ss: 3, bw: true, pick: 'Crunch' }
       ]
     }
   ],

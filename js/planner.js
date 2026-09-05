@@ -138,16 +138,25 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
   const weekInPhase = ((week - 1) % 4) + 1;
   const isDeload    = isDeloadWeek(week);
 
-  const ladder  = ladderFor(spec.pattern, profile);
-  const idx = indexOverride !== null
-    ? Math.max(0, Math.min(indexOverride, ladder.length - 1))
-    : resolveLadderIndex(spec, profile, week);
-  const exercise = ladder[idx];
+  // spec.bw erzwingt die Körpergewichts-Leiter; spec.pick fixiert eine bestimmte
+  // Übung (für kuratierte Pläne wie die gewichtsgepaarten Supersätze).
+  const ladder = spec.bw ? (PROGRESSIONS[spec.pattern] || []) : ladderFor(spec.pattern, profile);
+  let idx;
+  if (indexOverride !== null) {
+    idx = Math.max(0, Math.min(indexOverride, ladder.length - 1));
+  } else if (spec.pick) {
+    const i = ladder.findIndex(e => e.name === spec.pick);
+    idx = i >= 0 ? i : 0;
+  } else {
+    idx = resolveLadderIndex(spec, profile, week);
+  }
+  const exercise = ladder[idx] || ladder[0];
+  const fixed = !!spec.pick;
 
   const unilateral = !!exercise.unilateral;
   const weighted   = !!exercise.weighted;
   const oneDb      = !!exercise.oneDb;
-  const startKg    = exercise.startKg || null;
+  const startKg    = spec.kg || exercise.startKg || null;   // spec.kg: gepaartes Block-Gewicht
   // W12 (weekInPhase 4 in Phase 3) trainiert auf Woche-3-Niveau weiter
   const rangeIdx = Math.min(weekInPhase, 3) - 1;
 
@@ -235,6 +244,7 @@ export function generateExercise(spec, profile, week, indexOverride = null) {
     sets, target, type, unilateral, weighted, oneDb, startKg, isDeload,
     restSec: exercise.restSec || null,
     ss: (spec.ss !== undefined ? spec.ss : null),
+    fixed,
     ladderIdx: idx
   };
 }

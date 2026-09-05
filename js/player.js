@@ -205,6 +205,7 @@ function applySwapOffsets(profile) {
   const w = session.workout;
   w.exercises = w.exercises.map((ex, i) => {
     const off = session.swapOffsets[i];
+    if (!off) return ex;   // unverändert lassen — bewahrt fixierte/kuratierte Übungen
     const clone = {
       ...profile,
       levelAdjust: { ...(profile.levelAdjust || {}), [ex.pattern]: (((profile.levelAdjust || {})[ex.pattern]) || 0) + off }
@@ -399,10 +400,16 @@ function renderSupersetBadge(ex) {
   const group = supersetGroup(session.exIdx);
   if (group.length < 2) { el.classList.add('hidden'); el.textContent = ''; return; }
   const pos = group.indexOf(session.exIdx) + 1;
+  const exs = session.workout.exercises;
+  const wgt = group.map(i => exs[i]).filter(e => e.weighted && e.startKg);
+  let wNote = '';
+  if (wgt.length >= 2 && wgt.every(e => e.startKg === wgt[0].startKg)) {
+    wNote = ` · beide ${wgt[0].startKg} kg — nicht wechseln`;
+  }
   el.classList.remove('hidden');
-  el.textContent = pos < group.length
+  el.textContent = (pos < group.length
     ? `🔗 Supersatz · Übung ${pos}/${group.length} — danach direkt weiter, keine Pause`
-    : `🔗 Supersatz · Übung ${pos}/${group.length} — danach Pause`;
+    : `🔗 Supersatz · Übung ${pos}/${group.length} — danach Pause`) + wNote;
 }
 
 function renderSwapButtons(ex) {
@@ -412,6 +419,15 @@ function renderSwapButtons(ex) {
   const profile  = loadProfile();
   const btnE = document.getElementById('btnEasier');
   const btnH = document.getElementById('btnHarder');
+
+  // Kuratierte (fixierte) Übungen — z.B. die gewichtsgepaarten Supersätze —
+  // lassen sich nicht tauschen, sonst passt das Block-Gewicht nicht mehr.
+  if (ex.fixed) {
+    btnE.classList.add('hidden');
+    btnH.classList.add('hidden');
+    wrap.classList.add('hidden');
+    return;
+  }
 
   // Variations-Pool (Brust): frei durchblättern statt leichter/schwerer
   if (canSwap && isVarietyLadder(ex.pattern, profile)) {
